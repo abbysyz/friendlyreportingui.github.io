@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96.21 96.21">
+  <defs>
+    <style>
+      .cls-1 {
+        fill-rule: evenodd;
+      }
+
+      .cls-1, .cls-2 {
+        fill: #9EA0A7;
+      }
+
+      .cls-2 {
+        opacity: 0;
+      }
+    </style>
+  </defs>
+  <g id="Icons_16px">
+    <g id="information">
+      <rect class="cls-2" width="96.21" height="96.21"/>
+      <path id="information-2" data-name="information" class="cls-1" d="M48.1,0C21.65,0,0,21.65,0,48.1s21.65,48.1,48.1,48.1,48.1-21.65,48.1-48.1S74.56,0,48.1,0ZM54.12,72.16c0,3.32-2.69,6.01-6.01,6.01s-6.01-2.69-6.01-6.01v-30.07c0-3.32,2.69-6.01,6.01-6.01s6.01,2.69,6.01,6.01v30.07ZM48.23,30.07c-3.32,0-6.04-2.69-6.04-6.01s2.66-6.01,5.98-6.01h.06c3.32,0,6.01,2.69,6.01,6.01s-2.69,6.01-6.01,6.01Z"/>
+    </g>
+  </g>
+</svg>
