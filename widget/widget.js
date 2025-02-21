@@ -328,4 +328,5 @@
             }
         }
     }
+    customElements.define("external-di-widget", Widget);
 })();
