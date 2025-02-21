@@ -59,7 +59,6 @@
             color: white;
             flex: 1;
             margin-left: 200px;
-            padding-right: 20px;
             padding-top: 60px; /* Adjust this value based on the height of the nav bar */
         }
         input {
@@ -264,9 +263,9 @@
                             <button onclick="toggleFavourite(${index}, this)" style="display: none"><img src="/assets/icons/${data.favorite ? 'favorite' : 'unfavorite'}.svg" alt="Icon" class="icon"></button>
                         </td>
                         <td>
-                        <button class="accordion">${data["insight"]}</button>
+                        <button class="accordion" style="font-size:16px; height: 65px">${data["insight"]}</button>
                         <div class="panel">
-                            <p>${data["content"]}</p>
+                            <p style="padding: 10px">${data["content"]}</p>
                             <div style="text-align:right;">
                                 <img src="/assets/icons/thumbup.svg" alt="Icon" class="icon" style="margin: 8px">
                                 <img src="/assets/icons/thumbdown.svg" alt="Icon" class="icon" style="margin: 8px">

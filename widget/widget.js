@@ -1,11 +1,6 @@
-customElements.define('com-sap-customwidget-insights', class InsightsWidget extends HTMLElement {
-    constructor() {
-        super();
-        this.attachShadow({ mode: 'open' });
-    }
-
-    connectedCallback() {
-        this.shadowRoot.innerHTML = `
+(function () {
+    let template = document.createElement("template");
+    template.innerHTML = `
             <style>
                 html {
                     height: 100%;
@@ -193,59 +188,100 @@ customElements.define('com-sap-customwidget-insights', class InsightsWidget exte
             </div>
         `;
 
-        this.shadowRoot.querySelectorAll('nav div').forEach(item => {
-            item.addEventListener('click', () => {
-                const page = item.dataset.page;
-                this.shadowRoot.querySelectorAll('.main-content').forEach(section => {
-                    section.style.display = section.id === page ? '' : 'none';
+    class Widget extends HTMLElement {
+        constructor() {
+            super();
+            let shadowRoot = this.attachShadow({ mode: "open" });
+                
+            shadowRoot.appendChild(template.content.cloneNode(true));
+            this._props = {};
+
+            shadowRoot.querySelectorAll('nav div').forEach(item => {
+                item.addEventListener('click', () => {
+                    const page = item.dataset.page;
+                    shadowRoot.querySelectorAll('.main-content').forEach(section => {
+                        section.style.display = section.id === page ? '' : 'none';
+                    });
                 });
             });
-        });
-
-        this.populateTable();
-        this.toggleAccordion();
-    }
-
-    toggleAccordion() {
-        const acc = this.shadowRoot.getElementsByClassName("accordion");
-        for (let i = 0; i < acc.length; i++) {
-            acc[i].addEventListener("click", function() {
-                this.classList.toggle("active");
-                const panel = this.nextElementSibling;
-                if (panel.style.maxHeight) {
-                    panel.style.maxHeight = null;
-                } else {
-                    panel.style.maxHeight = panel.scrollHeight + "px";
-                }
-            });
+            // Initial population of the table
+            populateTable();
+            toggleAccordion();
+            
         }
-    }
 
-    populateTable() {
-        const tableBody = this.shadowRoot.getElementById('allInsightsTableBody');
-        const favouriteTableBody = this.shadowRoot.getElementById('favouriteTableBody');
-        tableBody.innerHTML = ''; // Clear existing rows
-        favouriteTableBody.innerHTML = ''; // Clear existing rows
-        fetch('https://hda-friendly-reporting.me.sap.corp/api/v1/active_insights/insights')
-            .then(response => response.json())
+       
+        toggleAccordion() {
+            var acc = document.getElementsByClassName("accordion");
+            var i;
+            for (i = 0; i < acc.length; i++) {
+                acc[i].addEventListener("click", function() {
+                    this.classList.toggle("active");
+                    var panel = this.nextElementSibling;
+                    if (panel.style.maxHeight) {
+                    panel.style.maxHeight = null;
+                    } else {
+                    panel.style.maxHeight = panel.scrollHeight + "px";
+                    } 
+                });
+            };
+        }
+
+        findRowByItem(table, item) { //fav function
+            for (let i = 0; i < table.rows.length; i++) {
+                if (table.rows[i].cells[1].innerText === item) {
+                    return table.rows[i];
+                }
+            }
+            return null;
+        }
+
+        toggleFavourite(index, button) { //fav function
+            const row = button.parentElement.parentElement;
+            const item = row.cells[1].innerText;
+            const favouriteTable = document.getElementById('favouriteTableBody');
+            const allInsightsTableBody = document.getElementById('allInsightsTableBody');
+            const icon = button.querySelector('img');
+
+            if (icon.src.includes('unfavorite.svg')) {
+                icon.src = '/assets/icons/favorite.svg';
+                data.insights[index].favorite = true
+            } else {
+                icon.src = '/assets/icons/unfavorite.svg';
+                data.insights[index].favorite = false
+            }
+            populateTable();
+        }
+
+        populateTable() {
+            let tableBody = document.getElementById('allInsightsTableBody');
+            let favouriteTableBody = document.getElementById('favouriteTableBody');
+            tableBody.innerHTML = ''; // Clear existing rows
+            favouriteTableBody.innerHTML = ''; // Clear existing rows
+            fetch('https://hda-friendly-reporting.me.sap.corp/api/v1/active_insights/insights')
+            .then(response => {
+                return response.json();
+            })
             .then(data => {
-                let table_html = "";
+                let table_html = ""
                 let favourite_html = "";
-                data.forEach((data, index) => {
+                rowData = data
+                rowData.forEach((data, index) => {
                     table_html += `<tr>
                         <td>
                             <button onclick="toggleFavourite(${index}, this)" style="display: none"><img src="/assets/icons/${data.favorite ? 'favorite' : 'unfavorite'}.svg" alt="Icon" class="icon"></button>
                         </td>
                         <td>
-                            <button class="accordion">${data["insight"]}</button>
-                            <div class="panel">
-                                <p>${data["content"]}</p>
-                                <div style="text-align:right;">
-                                    <img src="/assets/icons/thumbup.svg" alt="Icon" class="icon" style="margin: 8px">
-                                    <img src="/assets/icons/thumbdown.svg" alt="Icon" class="icon" style="margin: 8px">
-                                    <img src="/assets/icons/notification.svg" alt="Icon" class="icon" style="margin: 8px">
-                                </div>
+                        <button class="accordion" style="font-size:16px; height: 65px">${data["insight"]}</button>
+                        <div class="panel">
+                            <p style="padding: 10px">${data["content"]}</p>
+                            <div style="text-align:right;">
+                                <img src="/assets/icons/thumbup.svg" alt="Icon" class="icon" style="margin: 8px">
+                                <img src="/assets/icons/thumbdown.svg" alt="Icon" class="icon" style="margin: 8px">
+                                <img src="/assets/icons/notification.svg" alt="Icon" class="icon" style="margin: 8px">
                             </div>
+                        </div>
+                    
                         </td>
                     </tr>`;
                     if (data.favorite) {
@@ -264,32 +300,32 @@ customElements.define('com-sap-customwidget-insights', class InsightsWidget exte
                                     </div>
                                 </div>
                         </tr>`;
-                    }
-                });
+                    };
                 tableBody.innerHTML += table_html;
                 favouriteTableBody.innerHTML += favourite_html;
-                this.toggleAccordion();
+                toggleAccordion();
+
             })
-            .catch(error => console.error('Error:', error));
-    }
+            .catch(error => console.error('Error:', error))
+        })};
 
-    searchTable() {
-        const input = this.shadowRoot.getElementById('searchInput').value.toLowerCase();
-        const table = this.shadowRoot.getElementById('allInsightsTable');
-        const rows = table.getElementsByTagName('tr');
+        searchTable() {
+            const input = document.getElementById('searchInput').value.toLowerCase();
+            const table = document.getElementById('allInsightsTable');
+            const rows = table.getElementsByTagName('tr');
 
-        for (let i = 1; i < rows.length; i++) {
-            const cells = rows[i].getElementsByTagName('td');
-            let match = false;
+            for (let i = 1; i < rows.length; i++) {
+                const cells = rows[i].getElementsByTagName('td');
+                let match = false;
 
-            for (let j = 0; j < cells.length; j++) {
-                if (cells[j].innerText.toLowerCase().includes(input)) {
-                    match = true;
-                    break;
+                for (let j = 0; j < cells.length; j++) {
+                    if (cells[j].innerText.toLowerCase().includes(input)) {
+                        match = true;
+                        break;
+                    }
                 }
+                rows[i].style.display = match ? '' : 'none';
             }
-
-            rows[i].style.display = match ? '' : 'none';
         }
     }
-});
+})();
