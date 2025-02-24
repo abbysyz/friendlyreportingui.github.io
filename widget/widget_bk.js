@@ -22,6 +22,7 @@ class InsightsWidget extends HTMLElement {
                 :host {
                     display: block;
                     font-family: Arial, sans-serif;
+                    background-color: black;
                     color: white;
                     padding: 10px;
                 }
@@ -99,22 +100,8 @@ class InsightsWidget extends HTMLElement {
 
             <div class="sidebar">
                 <input id="searchInput" type="text" placeholder="Search..." onkeyup="this.getRootNode().host.searchTable()">
-                <div data-page="insights" style="padding: 0 0 0 20px">
-                    <img src="https://abbysyz.github.io/friendlyreportingui.github.io/assets/icons/lightbulb.svg" alt="Icon" class="icon">
-                    <span>All Insights</span>
-                </div>
-                <div data-page="customization" style="padding: 0 0 0 20px">
-                    <img src="https://abbysyz.github.io/friendlyreportingui.github.io/assets/icons/customize.svg" alt="Icon" class="icon">
-                    <span>Customization</span>
-                </div>
-                <div data-page="info" style="padding: 0 0 0 20px">
-                    <img src="https://abbysyz.github.io/friendlyreportingui.github.ioassets/icons/information.svg" alt="Icon" class="icon">
-                    <span>Info</span>
-                </div>
-                <div data-page="contact" style="padding: 0 0 0 20px">
-                    <img src="https://abbysyz.github.io/friendlyreportingui.github.io/assets/icons/person.svg" alt="Icon" class="icon">
-                    <span>Contact Us</span>
-                </div>
+                <div data-page="insights">📜 All Insights</div>
+                <div data-page="favorites">⭐ Favorites</div>
             </div>
 
             <div class="main-content">
