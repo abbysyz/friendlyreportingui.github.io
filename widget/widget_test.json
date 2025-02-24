@@ -1,0 +1,25 @@
+{
+    "name": "InsightsWidget",
+    "id": "com.custom.insights",
+    "type": "component",
+    "properties": {
+      "title": {
+        "type": "string",
+        "default": "All Insights"
+      },
+      "apiEndpoint": {
+        "type": "string",
+        "default": "https://abbysyz.github.io/friendlyreportingui.github.io/widget_test.js"
+      }
+    },
+    "methods": {
+      "refreshData": {
+        "description": "Fetches data from API and refreshes the insights table"
+      }
+    },
+    "events": {
+      "onInsightClick": {
+        "description": "Triggered when an insight is clicked"
+      }
+    }
+  }
