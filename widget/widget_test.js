@@ -130,13 +130,17 @@ class InsightsWidget extends HTMLElement {
 
     async fetchData() {
         const apiEndpoint = this.getAttribute("apiEndpoint");
-        try {
+         try {
             const response = await fetch(apiEndpoint);
+            if (!response.ok) {
+                throw new Error("Failed to fetch data");
+            }
             const data = await response.json();
             this.insightsData = data;
             this.populateTable();
         } catch (error) {
             console.error("Error fetching insights data:", error);
+            this.showError("Failed to load insights data. Please try again later.");
         }
     }
 

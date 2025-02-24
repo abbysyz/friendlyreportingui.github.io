@@ -12,7 +12,15 @@
           "ignoreIntegrity": true
       }
   ],
-    "properties": {
+    "property": {
+      "title": {
+        "type": "string",
+        "default": "All Insights"
+      },
+      "apiEndpoint": {
+        "type": "string",
+        "default": "https://hda-friendly-reporting.me.sap.corp/api/v1/active_insights/insights"
+      }
     },
     "methods": {
       "refreshData": {
