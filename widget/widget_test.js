@@ -128,35 +128,11 @@
                 <nav>
                     <input id="searchInput" type="text" placeholder="Search...">
                     <div data-page="insights"><span>All Insights</span></div>
-                    <div data-page="favorites"><span>Favorites</span></div>
-                    <div data-page="customization"><span>Customization</span></div>
-                    <div data-page="info"><span>Info</span></div>
-                    <div data-page="contact"><span>Contact Us</span></div>
                 </nav>
 
                 <div class="main-content" id="insights">
                     <header><h1>All Insights</h1></header>
                     <table id="allInsightsTable"><tbody id="allInsightsTableBody"></tbody></table>
-                </div>
-
-                <div class="main-content" id="favorites" style="display: none;">
-                    <header><h1>Favorites</h1></header>
-                    <table><tbody id="favouriteTableBody"></tbody></table>
-                </div>
-
-                <div class="main-content" id="customization" style="display: none;">
-                    <header><h1>Customization</h1></header>
-                    <p>Some customizable filters for insights.</p>
-                </div>
-
-                <div class="main-content" id="info" style="display: none;">
-                    <header><h1>Info Page</h1></header>
-                    <p>Information about insights.</p>
-                </div>
-
-                <div class="main-content" id="contact" style="display: none;">
-                    <header><h1>Contact Us</h1></header>
-                    <p>Contact information.</p>
                 </div>
             `;
 
@@ -180,7 +156,6 @@
 
         populateTable() {
             let tableBody = this.shadowRoot.getElementById('allInsightsTableBody');
-
             fetch('https://hda-friendly-reporting.me.sap.corp/api/v1/active_insights/insights')
             .then(response => response.json())
             .then(data => {
@@ -220,6 +195,6 @@
     }
 
     // Define the custom element
-    customElements.define('insights-page', InsightsPage);
+    customElements.define('insights-page', Widget);
     // customElements.define("external-di-widget", Widget);
 })();
