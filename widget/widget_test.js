@@ -6,23 +6,13 @@ class InsightsWidget extends HTMLElement {
         this.render();
     }
 
-    static get observedAttributes() {
-        return ["title", "apiEndpoint"];
-    }
-
-    attributeChangedCallback(name, oldValue, newValue) {
-        if (name === "apiEndpoint" && newValue) {
-            this.fetchData();
-        }
-    }
-
     render() {
         this.shadowRoot.innerHTML = `
             <style>
+                @import url('https://fonts.sap.com/css?family=72');
                 :host {
                     display: block;
-                    font-family: Arial, sans-serif;
-                    background-color: black;
+                    font-family: '72', sans-serif;
                     color: white;
                     padding: 10px;
                 }
@@ -51,14 +41,13 @@ class InsightsWidget extends HTMLElement {
                     background-color: #363640;
                 }
                 h1 {
-                    color: #E38100
+                    color: #BE882E
                 }
                 .main-content {
                     padding: 10px;
                     color: white;
                     flex: 1;
                     margin-left: 200px;
-                    padding-top: 60px;
                     display: none; /* Hide all pages by default */
                 }
                 .main-content.active {
@@ -187,7 +176,7 @@ class InsightsWidget extends HTMLElement {
         this.insightsData.forEach((insight, index) => {
             const row = document.createElement("tr");
 
-            row.innerHTML = `<tr>
+            row.innerHTML = `
                 <td>
                     <button onclick="this.getRootNode().host.toggleFavourite(${index}, this)">
                         <img src="/assets/icons/${insight.favorite ? 'favorite' : 'unfavorite'}.svg" class="icon">
@@ -197,7 +186,7 @@ class InsightsWidget extends HTMLElement {
                     <button class="accordion">${insight.insight}</button>
                     <div class="panel">${insight.content}</div>
                 </td>
-            </tr>`;
+            `;
 
             tableBody.appendChild(row);
         });
@@ -232,5 +221,4 @@ class InsightsWidget extends HTMLElement {
         });
     }
 }
-
 customElements.define("insights-widget", InsightsWidget);
