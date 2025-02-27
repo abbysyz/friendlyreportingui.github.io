@@ -159,7 +159,7 @@ class InsightsWidget extends HTMLElement {
 
     async fetchData() {
         // const apiEndpoint = "https://hda-friendly-reporting.me.sap.corp/api/v1/active_insights/insights";
-        const apiEndpoint = "http://0.0.0.0:8000/api/v1/active_insights/insights"
+        const apiEndpoint = "http://localhost:8000/api/v1/active_insights/insights"
         try {
             const response = await fetch(apiEndpoint);
             const data = await response.json();
