@@ -75,7 +75,7 @@ class InsightsWidget extends HTMLElement {
                     border-style: none;
                 }
                 .table-container {
-                    height: 60vh;
+                    height: 80vh;
                     overflow-y: auto;
                     display: block;
                 }
@@ -198,97 +198,11 @@ class InsightsWidget extends HTMLElement {
     }
 
     async fetchData() {
-        // const apiEndpoint = "https://hda-friendly-reporting.me.sap.corp/api/v1/active_insights/insights";
+        const apiEndpoint = "https://hda-friendly-reporting.me.sap.corp/api/v1/active_insights/insights";
         // const apiEndpoint = "https://0.0.0.0:8000/api/v1/active_insights/insights";
         try {
-            // const response = await fetch(apiEndpoint);
-            // const data = await response.json();
-            const data = [
-                {
-                    "insight": "Give me the service with the top highest upwards trend of weekly pipeline failures during the last 2 months",
-                    "content": "The service with the top highest upwards trend of weekly pipeline failures during the last two months is the 'CCA Store' with a slope of 2.666667.",
-                    "reporting_platform_name": "y",
-                    "id": "3cbdde41-c35e-451f-9eed-16b77c660230",
-                    "create_datetime": "2025-02-18T06:35:12.613000Z"
-                },
-                {
-                    "insight": "Find the service with the max weekly average pipeline runtime during the last 2 months.",
-                    "content": "The service with the maximum weekly average pipeline runtime during the last 2 months is 'DMI Pacemaker' with an average runtime of 71,840,187.71 during week 202451.",
-                    "reporting_platform_name": "y",
-                    "id": "d1300575-c05c-4485-a474-2b2feef5e59d",
-                    "create_datetime": "2025-02-18T06:39:44.956000Z"
-                },
-                {
-                    "insight": "What is the code coverage trend for the service:  HDL Operator during the last 2 month.",
-                    "content": "There are no facts provided regarding the code coverage trend for the service: HDL Operator during the last 2 months.",
-                    "reporting_platform_name": "y",
-                    "id": "46f2f331-7c45-40ad-8618-3f0bc49e29a7",
-                    "create_datetime": "2025-02-18T06:48:02.999000Z"
-                },
-                {
-                    "insight": "Give me the service which shows the top highest downwards trend for code coverage during the last 1 month",
-                    "content": "There are no facts available regarding the service showing the highest downwards trend for code coverage in the last month.",
-                    "reporting_platform_name": "y",
-                    "id": "1bd00c3a-996f-4819-8383-447ce8d2c301",
-                    "create_datetime": "2025-02-18T06:45:40.541000Z"
-                },
-                {
-                    "insight": "Give me the service with the highest weekly average pipeline failure ratio and the week when these services' pipelines started during the last 2 months.",
-                    "content": "There are no facts directly related to identifying the service with the highest weekly average pipeline failure ratio and the start week of these pipelines from the last two months. Data files are mentioned, but no specific analysis or results from these files are provided.",
-                    "reporting_platform_name": "y",
-                    "id": "2fcee828-a09e-4300-bc30-ba76b556bb5e",
-                    "create_datetime": "2025-02-26T09:39:44.202667Z"
-                },
-                {
-                    "insight": "What is the maximum average lead-time for Very High priority jira tickets for the past one month on a monthly basis, also give details related to it.",
-                    "content": "There are no facts directly related to the objective regarding the maximum average lead-time for Very High priority Jira tickets for the past month.",
-                    "reporting_platform_name": "y",
-                    "id": "3f8d0477-e90c-47e8-b242-6a97204ef65c",
-                    "create_datetime": "2025-02-27T11:39:19.384923Z"
-                },
-                {
-                    "insight": "Give me the service with the top highest upwards trend of weekly pipeline failures during the last 2 months",
-                    "content": "The service with the top highest upwards trend of weekly pipeline failures during the last two months is the 'CCA Store' with a slope of 2.666667.",
-                    "reporting_platform_name": "y",
-                    "id": "3cbdde41-c35e-451f-9eed-16b77c660230",
-                    "create_datetime": "2025-02-18T06:35:12.613000Z"
-                },
-                {
-                    "insight": "Find the service with the max weekly average pipeline runtime during the last 2 months.",
-                    "content": "The service with the maximum weekly average pipeline runtime during the last 2 months is 'DMI Pacemaker' with an average runtime of 71,840,187.71 during week 202451.",
-                    "reporting_platform_name": "y",
-                    "id": "d1300575-c05c-4485-a474-2b2feef5e59d",
-                    "create_datetime": "2025-02-18T06:39:44.956000Z"
-                },
-                {
-                    "insight": "What is the code coverage trend for the service:  HDL Operator during the last 2 month.",
-                    "content": "There are no facts provided regarding the code coverage trend for the service: HDL Operator during the last 2 months.",
-                    "reporting_platform_name": "y",
-                    "id": "46f2f331-7c45-40ad-8618-3f0bc49e29a7",
-                    "create_datetime": "2025-02-18T06:48:02.999000Z"
-                },
-                {
-                    "insight": "Give me the service which shows the top highest downwards trend for code coverage during the last 1 month",
-                    "content": "There are no facts available regarding the service showing the highest downwards trend for code coverage in the last month.",
-                    "reporting_platform_name": "y",
-                    "id": "1bd00c3a-996f-4819-8383-447ce8d2c301",
-                    "create_datetime": "2025-02-18T06:45:40.541000Z"
-                },
-                {
-                    "insight": "Give me the service with the highest weekly average pipeline failure ratio and the week when these services' pipelines started during the last 2 months.",
-                    "content": "There are no facts directly related to identifying the service with the highest weekly average pipeline failure ratio and the start week of these pipelines from the last two months. Data files are mentioned, but no specific analysis or results from these files are provided.",
-                    "reporting_platform_name": "y",
-                    "id": "2fcee828-a09e-4300-bc30-ba76b556bb5e",
-                    "create_datetime": "2025-02-26T09:39:44.202667Z"
-                },
-                {
-                    "insight": "What is the maximum average lead-time for Very High priority jira tickets for the past one month on a monthly basis, also give details related to it.",
-                    "content": "There are no facts directly related to the objective regarding the maximum average lead-time for Very High priority Jira tickets for the past month.",
-                    "reporting_platform_name": "y",
-                    "id": "3f8d0477-e90c-47e8-b242-6a97204ef65c",
-                    "create_datetime": "2025-02-27T11:39:19.384923Z"
-                }
-            ]
+            const response = await fetch(apiEndpoint);
+            const data = await response.json();
             this.insightsData = data;
             this.populateTable();
         } catch (error) {
