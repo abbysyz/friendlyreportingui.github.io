@@ -77,7 +77,7 @@ class InsightsWidget extends HTMLElement {
                 }
                 .table-container {
                     height: 80vh;
-                    overflow-y: auto;
+                    // overflow-y: auto;
                     display: block;
                     // height: calc(98vh - 70px);
                 }
