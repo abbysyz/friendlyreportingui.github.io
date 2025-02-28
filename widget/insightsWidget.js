@@ -53,7 +53,7 @@ class InsightsWidget extends HTMLElement {
                     background-color: #363640;
                 }
                 h1 {
-                    color: #BE882E
+                    color: #E38100
                 }
                 .main-content {
                     padding: 10px;
@@ -223,9 +223,9 @@ class InsightsWidget extends HTMLElement {
                     <div class="panel">
                             <p style="padding: 10px">${insight["content"]}</p>
                             <div style="text-align:right;">
-                                <img src="/assets/icons/thumbup.svg" alt="Icon" class="icon" style="margin: 8px">
-                                <img src="/assets/icons/thumbdown.svg" alt="Icon" class="icon" style="margin: 8px">
-                                <img src="/assets/icons/notification.svg" alt="Icon" class="icon" style="margin: 8px">
+                                <img src="https://abbysyz.github.io/friendlyreportingui.github.io/assets/icons/thumbup.svg" alt="Icon" class="icon" style="margin: 8px">
+                                <img src="https://abbysyz.github.io/friendlyreportingui.github.io/assets/icons/thumbdown.svg" alt="Icon" class="icon" style="margin: 8px">
+                                <img src="https://abbysyz.github.io/friendlyreportingui.github.io/assets/icons/notification.svg" alt="Icon" class="icon" style="margin: 8px">
                             </div>
                         </div>
                 </td>
