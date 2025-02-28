@@ -14,7 +14,8 @@ class InsightsWidget extends HTMLElement {
                     display: block;
                     font-family: '72', sans-serif;
                     color: white;
-                    height: 98vh;
+                    height: 90vh;
+                    // width: 100vw;
                     // background-color: black;
                 }
                 header {
@@ -56,7 +57,7 @@ class InsightsWidget extends HTMLElement {
                     color: #E38100
                 }
                 .main-content {
-                    padding: 10px;
+                    // padding: 10px;
                     color: white;
                     flex: 1;
                     margin-left: 200px;
@@ -78,14 +79,24 @@ class InsightsWidget extends HTMLElement {
                     height: 80vh;
                     overflow-y: auto;
                     display: block;
+                    // height: calc(98vh - 70px);
                 }
                 table {
                     border-collapse: collapse;
                     position: absolute;
-                    top: 100px;
+                    top: 80px;
+                }
+                tbody {
+                    display: block;
+                    width: 100%;
                 }
                 th, td {
                     text-align: left;
+                }
+                thead, tbody tr {
+                    display: table;
+                    width: 100%;
+                    table-layout: fixed; /* Ensures column alignment */
                 }
                 .accordion {
                     background-color: #27272F;
