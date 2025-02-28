@@ -249,7 +249,7 @@
             let favouriteTableBody = document.getElementById('favouriteTableBody');
             tableBody.innerHTML = ''; // Clear existing rows
             favouriteTableBody.innerHTML = ''; // Clear existing rows
-            fetch('https://hda-friendly-reporting.me.sap.corp/api/v1/active_insights/insights')
+            fetch('https://0.0.0.0:8000/api/v1/active_insights/insights')
             .then(response => {
                 return response.json();
             })
