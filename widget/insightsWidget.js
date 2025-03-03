@@ -8,15 +8,20 @@ class InsightsWidget extends HTMLElement {
     }
 
     connectedCallback() {
-        this.captureTitleFromParent();
+        // this.captureTitleFromParent();
+        setTimeout(() => {
+            this.captureTitleFromParent();
+        }, 100); 
         this.setupNavigation();
         this.fetchData();
     }
 
     captureTitleFromParent() {
         const parentDiv = this.closest('.sapFpaStoryEntityHeaderHeaderWidgetTextEditorContainer');
+        console.log('============Parent div:', parentDiv);
         if (parentDiv) {
             const titleElement = parentDiv.querySelector('.sapFpaStoryEntityTextTextWidget span');
+            console.log('==========Title element:', titleElement);
             if (titleElement) {
                 this.pageTitle = titleElement.textContent.trim();  // Capture and store the title
                 console.log('Captured Title from Parent:', this.pageTitle);  // Log the title for debugging
