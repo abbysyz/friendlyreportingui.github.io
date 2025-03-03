@@ -9,6 +9,7 @@ class InsightsWidget extends HTMLElement {
 
     connectedCallback() {
         // this.captureTitleFromParent();
+        console.log('InsightsWidget connected to DOM');
         setTimeout(() => {
             this.captureTitleFromParent();
         }, 100); 
@@ -17,37 +18,18 @@ class InsightsWidget extends HTMLElement {
     }
 
     captureTitleFromParent() {
-        const parentDiv = this.closest('.sapFpaStoryEntityHeaderHeaderWidgetTextEditorContainer');
-        console.log('============Parent div:', parentDiv);
-        if (parentDiv) {
-            const titleElement = parentDiv.querySelector('.sapFpaStoryEntityTextTextWidget span');
-            console.log('==========Title element:', titleElement);
-            if (titleElement) {
-                this.pageTitle = titleElement.textContent.trim();  // Capture and store the title
-                console.log('Captured Title from Parent:', this.pageTitle);  // Log the title for debugging
-            } else {
-                console.log('Title element not found in parent.');
-            }
-        } else {
-            console.log('Parent div not found.');
-        }
-    }
+        console.log('Entire DOM:', document.body);
 
-    // Function to capture the title from the parent container
-    captureTitle(parentDiv) {
-        console.log('Searching for title element...');
-        const titleElement = parentDiv.querySelector('.sapFpaStoryEntityTextTextWidget span');
-        console.log('Title Element:', titleElement);  // Log the title element for debugging
-        
+        const titleElement = document.querySelector('.sapFpaStoryEntityHeaderHeaderWidgetTextEditorContainer .sapFpaStoryEntityTextTextWidget span');
+        console.log('Title element:', titleElement);
+
         if (titleElement) {
-            this.pageTitle = titleElement.textContent.trim();  // Capture the title
-            console.log('Captured Title:', this.pageTitle); // Optionally log the title
-            this.render();  // Re-render the widget with the captured title
+            this.pageTitle = titleElement.textContent.trim();  // Capture and store the title
+            console.log('Captured Title from Parent:', this.pageTitle);  // Log the title for debugging
         } else {
-            console.log('Title Element not found!');
+            console.log('Title element not found in parent.');
         }
     }
-
 
     render() {
         this.shadowRoot.innerHTML = `
