@@ -3,13 +3,30 @@ class InsightsWidget extends HTMLElement {
         super();
         this.attachShadow({ mode: "open" });
         this.insightsData = [];
-        this.pageTitle = this.getPageTitle();
+        this.pageTitle = '';
         this.render();
     }
 
-    getPageTitle() {
-        const parentTitleElement = document.querySelector(".sapFpaStoryEntityTextTextWidget");
-        return parentTitleElement ? parentTitleElement.innerText.trim() : "Unknown Title";
+    connectedCallback() {
+        // Capture the title from the parent container
+        this.captureTitle();
+        this.render();
+        this.setupNavigation();
+        this.fetchData();
+    }
+
+    // Function to capture the title from the parent container
+    captureTitle() {
+        const parentDiv = this.closest('.sapFpaStoryEntityHeaderHeaderWidgetTextEditorContainer');
+        if (parentDiv) {
+            const titleElement = parentDiv.querySelector('.sapFpaStoryEntityTextTextWidget span');
+            if (titleElement) {
+                this.pageTitle = titleElement.textContent.trim();  // Capture the title
+                console.log('Captured Title:', this.pageTitle); // Optionally log the title
+            } else{
+                console.log('No title')
+            }
+        }
     }
 
     render() {
@@ -23,7 +40,6 @@ class InsightsWidget extends HTMLElement {
                     // height: 90vh;
                     min-height: 90vh;
                     overflow: auto;
-                    // width: 100vw;
                     // background-color: black;
                 }
                 header {
@@ -82,6 +98,31 @@ class InsightsWidget extends HTMLElement {
                 button {
                     background-color: transparent;
                     border-style: none;
+                }
+                .tooltip {
+                    position: relative;
+                    display: inline-block;
+                    cursor: pointer;
+                }
+                .tooltip .tooltiptext {
+                    visibility: hidden;
+                    background-color: #9EA0A7;
+                    color: #363640;
+                    font-size: 10px;
+                    text-align: center;
+                    border-radius: 5px;
+                    padding: 5px;
+                    position: absolute;
+                    z-index: 1;
+                    bottom: 100%;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    opacity: 0;
+                    transition: opacity 0.3s;
+                }
+                .tooltip:hover .tooltiptext {
+                    visibility: visible;
+                    opacity: 2;
                 }
                 .table-container {
                     height: 80vh;
@@ -170,7 +211,7 @@ class InsightsWidget extends HTMLElement {
             </nav>
 
             <div class="main-content active" id="insights">
-                <h1>All Insights</h1>
+                <h1>${this.pageTitle || 'All Insights'}</h1>
                 <table id="insightsTable" class="table-container">
                     <tbody></tbody>
                 </table>
@@ -239,11 +280,20 @@ class InsightsWidget extends HTMLElement {
                 <td>
                     <button class="accordion" style="font-size:16px; height: 65px">${insight.insight}</button>
                     <div class="panel">
-                            <p style="padding: 10px">${insight["content"]}</p>
+                            <p style="padding: 10px; font-size:14px;">${insight["content"]}</p>
                             <div style="text-align:right;">
-                                <img src="https://abbysyz.github.io/friendlyreportingui.github.io/assets/icons/thumbup.svg" alt="Icon" class="icon" style="margin: 8px">
-                                <img src="https://abbysyz.github.io/friendlyreportingui.github.io/assets/icons/thumbdown.svg" alt="Icon" class="icon" style="margin: 8px">
-                                <img src="https://abbysyz.github.io/friendlyreportingui.github.io/assets/icons/notification.svg" alt="Icon" class="icon" style="margin: 8px">
+                                <div class="tooltip">
+                                    <img src="https://abbysyz.github.io/friendlyreportingui.github.io/assets/icons/thumbup.svg" alt="Icon" class="icon" style="margin: 8px">
+                                    <span class="tooltiptext">Like</span>
+                                </div>
+                                <div class="tooltip">
+                                    <img src="https://abbysyz.github.io/friendlyreportingui.github.io/assets/icons/thumbdown.svg" alt="Icon" class="icon" style="margin: 8px">
+                                    <span class="tooltiptext">Dislike</span>
+                                </div>
+                                <div class="tooltip">
+                                    <img src="https://abbysyz.github.io/friendlyreportingui.github.io/assets/icons/notification.svg" alt="Icon" class="icon" style="margin: 8px">
+                                    <span class="tooltiptext">Feedback</span>
+                                </div>
                             </div>
                         </div>
                 </td>
