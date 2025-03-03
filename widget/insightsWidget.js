@@ -8,11 +8,12 @@ class InsightsWidget extends HTMLElement {
     }
 
     connectedCallback() {
-        // this.captureTitleFromParent();
+        this.captureTitleFromParent();
         console.log('InsightsWidget connected to DOM');
-        setTimeout(() => {
-            this.captureTitleFromParent();
-        }, 100); 
+        // setTimeout(() => {
+        //     this.captureTitleFromParent();
+        // }, 100); 
+        this.render();
         this.setupNavigation();
         this.fetchData();
     }
