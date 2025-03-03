@@ -3,7 +3,13 @@ class InsightsWidget extends HTMLElement {
         super();
         this.attachShadow({ mode: "open" });
         this.insightsData = [];
+        this.pageTitle = this.getPageTitle();
         this.render();
+    }
+
+    getPageTitle() {
+        const parentTitleElement = document.querySelector(".sapFpaStoryEntityTextTextWidget");
+        return parentTitleElement ? parentTitleElement.innerText.trim() : "Unknown Title";
     }
 
     render() {
@@ -197,10 +203,8 @@ class InsightsWidget extends HTMLElement {
         navItems.forEach((item) => {
             item.addEventListener("click", () => {
                 const pageId = item.getAttribute("data-page");
-
                 // Hide all pages
                 pages.forEach((page) => page.classList.remove("active"));
-
                 // Show the selected page
                 const activePage = this.shadowRoot.querySelector(`#${pageId}`);
                 if (activePage) {
@@ -218,6 +222,7 @@ class InsightsWidget extends HTMLElement {
             const data = await response.json();
             this.insightsData = data;
             this.populateTable();
+            console.log(encodeURIComponent(this.pageTitle))
         } catch (error) {
             console.error("Error fetching insights data:", error);
         }
