@@ -8,27 +8,24 @@ class InsightsWidget extends HTMLElement {
     }
 
     connectedCallback() {
-        // Start observing the parent node for changes
-        this.observeParent();
+        this.captureTitleFromParent();
         this.setupNavigation();
         this.fetchData();
     }
 
-    observeParent() {
-        // We wait for the parent to be present
-        console.log('wait for the parent to be present')
-        const observer = new MutationObserver(() => {
-            const parentDiv = this.closest('.sapFpaStoryEntityHeaderHeaderWidgetTextEditorContainer');
-            console.log('Parent Div:', parentDiv);  // Log parentDiv for debugging
-
-            if (parentDiv) {
-                this.captureTitle(parentDiv);
-                observer.disconnect();  // Disconnect observer once the parent is found
+    captureTitleFromParent() {
+        const parentDiv = this.closest('.sapFpaStoryEntityHeaderHeaderWidgetTextEditorContainer');
+        if (parentDiv) {
+            const titleElement = parentDiv.querySelector('.sapFpaStoryEntityTextTextWidget span');
+            if (titleElement) {
+                this.pageTitle = titleElement.textContent.trim();  // Capture and store the title
+                console.log('Captured Title from Parent:', this.pageTitle);  // Log the title for debugging
+            } else {
+                console.log('Title element not found in parent.');
             }
-        });
-
-        // Observe the document for the addition of the parent div
-        observer.observe(document.body, { childList: true, subtree: true });
+        } else {
+            console.log('Parent div not found.');
+        }
     }
 
     // Function to capture the title from the parent container
