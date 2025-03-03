@@ -14,7 +14,9 @@ class InsightsWidget extends HTMLElement {
                     display: block;
                     font-family: '72', sans-serif;
                     color: white;
-                    height: 90vh;
+                    // height: 90vh;
+                    min-height: 90vh;
+                    overflow: auto;
                     // width: 100vw;
                     // background-color: black;
                 }
@@ -77,7 +79,7 @@ class InsightsWidget extends HTMLElement {
                 }
                 .table-container {
                     height: 80vh;
-                    // overflow-y: auto;
+                    overflow-y: auto;
                     display: block;
                     // height: calc(98vh - 70px);
                 }
@@ -93,11 +95,11 @@ class InsightsWidget extends HTMLElement {
                 th, td {
                     text-align: left;
                 }
-                thead, tbody tr {
-                    display: table;
-                    width: 100%;
-                    table-layout: fixed; /* Ensures column alignment */
-                }
+                // thead, tbody tr {
+                //     display: table;
+                //     width: 100%;
+                //     table-layout: fixed; /* Ensures column alignment */
+                // }
                 .accordion {
                     background-color: #27272F;
                     color: #DCE3E9;
@@ -209,8 +211,8 @@ class InsightsWidget extends HTMLElement {
     }
 
     async fetchData() {
-        const apiEndpoint = "https://hda-friendly-reporting.me.sap.corp/api/v1/active_insights/insights";
-        // const apiEndpoint = "https://0.0.0.0:8000/api/v1/active_insights/insights";
+        // const apiEndpoint = "https://hda-friendly-reporting.me.sap.corp/api/v1/active_insights/insights";
+        const apiEndpoint = "https://0.0.0.0:8000/api/v1/active_insights/insights";
         try {
             const response = await fetch(apiEndpoint);
             const data = await response.json();
