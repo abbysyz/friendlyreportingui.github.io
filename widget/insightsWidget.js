@@ -9,24 +9,16 @@ class InsightsWidget extends HTMLElement {
 
     connectedCallback() {
         this.captureTitleFromParent();
-        console.log('InsightsWidget connected to DOM');
-        // setTimeout(() => {
-        //     this.captureTitleFromParent();
-        // }, 100); 
         this.render();
         this.setupNavigation();
         this.fetchData();
     }
 
     captureTitleFromParent() {
-        console.log('Entire DOM:', document.body);
-
         const titleElement = document.querySelector('.sapFpaStoryEntityHeaderHeaderWidgetTextEditorContainer .sapFpaStoryEntityTextTextWidget span');
-        console.log('Title element:', titleElement);
-
         if (titleElement) {
-            this.pageTitle = titleElement.textContent.trim();  // Capture and store the title
-            console.log('Captured Title from Parent:', this.pageTitle);  // Log the title for debugging
+            this.pageTitle = titleElement.textContent.trim();
+            console.log('Captured Title from Parent:', this.pageTitle);
         } else {
             console.log('Title element not found in parent.');
         }
@@ -214,7 +206,7 @@ class InsightsWidget extends HTMLElement {
             </nav>
 
             <div class="main-content active" id="insights">
-                <h1>${this.pageTitle || 'All Insights'}</h1>
+                <h1>All Insights</h1>
                 <table id="insightsTable" class="table-container">
                     <tbody></tbody>
                 </table>
