@@ -183,6 +183,28 @@ class InsightsWidget extends HTMLElement {
                     margin-left: 15px;
                     background-color: #363640;
                 }
+                .toast {
+                    visibility: hidden;
+                    min-width: 250px;
+                    background-color: #DCE3E9;
+                    color: #27272F;
+                    text-align: center;
+                    padding: 12px;
+                    position: fixed;
+                    top: 20px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    border-radius: 5px;
+                    z-index: 1000;
+                    font-size: 14px;
+                    opacity: 0;
+                    transition: opacity 0.5s, visibility 0.5s;
+                }
+
+                .toast.show {
+                    visibility: visible;
+                    opacity: 1;
+                }
             </style>
 
             <nav class="sidebar">
@@ -207,6 +229,7 @@ class InsightsWidget extends HTMLElement {
 
             <div class="main-content active" id="insights">
                 <h1>All Insights</h1>
+                <div id="toast" class="toast">Feedback sent successfully!</div>
                 <table id="insightsTable" class="table-container">
                     <tbody></tbody>
                 </table>
@@ -277,11 +300,11 @@ class InsightsWidget extends HTMLElement {
                     <div class="panel">
                             <p style="padding: 10px; font-size:14px;">${insight["content"]}</p>
                             <div style="text-align:right;">
-                                <div class="tooltip">
+                                <div class="tooltip like-btn" data-insight-id="${insight.id}" data-feedback="like">
                                     <img src="https://abbysyz.github.io/friendlyreportingui.github.io/assets/icons/thumbup.svg" alt="Icon" class="icon" style="margin: 8px">
                                     <span class="tooltiptext">Like</span>
                                 </div>
-                                <div class="tooltip">
+                                <div class="tooltip dislike-btn" data-insight-id="${insight.id}" data-feedback="dislike">
                                     <img src="https://abbysyz.github.io/friendlyreportingui.github.io/assets/icons/thumbdown.svg" alt="Icon" class="icon" style="margin: 8px">
                                     <span class="tooltiptext">Dislike</span>
                                 </div>
@@ -293,11 +316,10 @@ class InsightsWidget extends HTMLElement {
                         </div>
                 </td>
             `;
-
             tableBody.appendChild(row);
         });
-
         this.setupAccordions();
+        this.setupFeedbackButtons()
     }
 
     setupAccordions() {
@@ -326,5 +348,60 @@ class InsightsWidget extends HTMLElement {
             row.style.display = text.includes(input) ? "" : "none";
         });
     }
+
+    setupFeedbackButtons() {
+        const likeButtons = this.shadowRoot.querySelectorAll(".like-btn");
+        const dislikeButtons = this.shadowRoot.querySelectorAll(".dislike-btn");
+    
+        const sendFeedback = async (insightId, isLike) => {
+            try {
+                const response = await fetch("https://hda-friendly-reporting.me.sap.corp/api/v1/active_insights/feedbacks", {
+                    // const response = await fetch("https://0.0.0.0:8000/api/v1/active_insights/feedbacks", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        insight_id: insightId,
+                        feedback: "",
+                        is_like: isLike
+                    })
+                });
+    
+                if (!response.ok) {
+                    throw new Error("Failed to send feedback");
+                }
+                console.log(`Feedback sent successfully: ${isLike ? "Like" : "Dislike"}`);
+                this.showToast("Thank you for your feedback!");
+            } catch (error) {
+                console.error("Error sending feedback:", error);
+            }
+        };
+    
+        likeButtons.forEach((btn) => {
+            btn.addEventListener("click", () => {
+                const insightId = btn.getAttribute("data-insight-id");
+                sendFeedback(insightId, true);
+            });
+        });
+    
+        dislikeButtons.forEach((btn) => {
+            btn.addEventListener("click", () => {                
+                const insightId = btn.getAttribute("data-insight-id");
+                sendFeedback(insightId, false);
+            });
+        });
+    }
+
+    showToast(message) {
+        const toast = this.shadowRoot.getElementById("toast");
+        toast.textContent = message;
+        toast.classList.add("show");
+    
+        setTimeout(() => {
+            toast.classList.remove("show");
+        }, 4000);
+    }
+    
 }
 customElements.define("insights-widget", InsightsWidget);
