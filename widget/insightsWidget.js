@@ -4,14 +4,12 @@ class InsightsWidget extends HTMLElement {
         this.attachShadow({ mode: "open" });
         this.insightsData = [];
         this.pageTitle = '';
-        this.render();
     }
 
     connectedCallback() {
         this.captureTitleFromParent();
         this.render();
         this.setupNavigation();
-        this.fetchData();
     }
 
     captureTitleFromParent() {
@@ -205,6 +203,50 @@ class InsightsWidget extends HTMLElement {
                     visibility: visible;
                     opacity: 1;
                 }
+
+                .modal {
+                    display: none;
+                    position: fixed;
+                    z-index: 1000;
+                    width: 500px;
+                    left: 50%;
+                    top: 20%;
+                    transform: translate(-50%, -50%);
+                    background-color: #DCE3E9;
+                    padding: 20px;
+                    border-radius: 5px;
+                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                    color: #363640;
+                }
+                .modal.active {
+                    display: block;
+                }
+                .modal h3 {
+                    margin: 0 0 10px;
+                    font-size: 16px;
+                    font-weight: bold;
+                }
+                .modal textarea {
+                    width: 100%;
+                    height: 100px;
+                    margin-bottom: 10px;
+                }
+                .modal button {
+                    width: 100%;
+                    margin-right: 10px;
+                    cursor: pointer;
+                    background-color: #363640;
+                    color: #DCE3E9;
+                }
+                .modal button:hover {
+                    opacity: 0.8;
+                }
+                .button-container {
+                    display: flex;
+                    flex-direction: row;
+                    gap: 10px;
+                    justify-content: flex-end;
+                }
             </style>
 
             <nav class="sidebar">
@@ -233,6 +275,15 @@ class InsightsWidget extends HTMLElement {
                 <table id="insightsTable" class="table-container">
                     <tbody></tbody>
                 </table>
+
+                <div id="commentModal" class="modal" style="flex-direction: column;">
+                    <h3>Add Comments</h3>
+                    <textarea class="comment-input"></textarea>
+                    <div class="button-container">
+                        <button class="cancel-btn" style="height: 30px; width: 100px; border-radius: 5px;">Cancel</button>
+                        <button class="send-btn" style="height: 30px; width: 100px; border-radius: 5px;">Send</button>
+                    </div>
+                </div>
             </div>
 
             <div class="main-content" id="customization">
@@ -308,9 +359,9 @@ class InsightsWidget extends HTMLElement {
                                     <img src="https://abbysyz.github.io/friendlyreportingui.github.io/assets/icons/thumbdown.svg" alt="Icon" class="icon" style="margin: 8px">
                                     <span class="tooltiptext">Dislike</span>
                                 </div>
-                                <div class="tooltip">
+                                <div class="tooltip comment-btn" data-insight-id="${insight.id}">
                                     <img src="https://abbysyz.github.io/friendlyreportingui.github.io/assets/icons/notification.svg" alt="Icon" class="icon" style="margin: 8px">
-                                    <span class="tooltiptext">Feedback</span>
+                                    <span class="tooltiptext">Add comments</span>
                                 </div>
                             </div>
                         </div>
@@ -352,8 +403,16 @@ class InsightsWidget extends HTMLElement {
     setupFeedbackButtons() {
         const likeButtons = this.shadowRoot.querySelectorAll(".like-btn");
         const dislikeButtons = this.shadowRoot.querySelectorAll(".dislike-btn");
+        const commentButtons = this.shadowRoot.querySelectorAll(".comment-btn");
     
-        const sendFeedback = async (insightId, isLike) => {
+        const modal = this.shadowRoot.querySelector("#commentModal");
+        const cancelButton = modal?.querySelector(".cancel-btn");
+        const sendButton = modal?.querySelector(".send-btn");
+        const commentInput = modal?.querySelector(".comment-input");
+    
+        let commentInsightId = "";
+
+        const sendFeedback = async (insightId, comment, isLike) => {
             try {
                 const response = await fetch("https://hda-friendly-reporting.me.sap.corp/api/v1/active_insights/feedbacks", {
                     // const response = await fetch("https://0.0.0.0:8000/api/v1/active_insights/feedbacks", {
@@ -363,34 +422,67 @@ class InsightsWidget extends HTMLElement {
                     },
                     body: JSON.stringify({
                         insight_id: insightId,
-                        feedback: "",
+                        feedback: comment,
                         is_like: isLike
                     })
                 });
-    
                 if (!response.ok) {
                     throw new Error("Failed to send feedback");
                 }
-                console.log(`Feedback sent successfully: ${isLike ? "Like" : "Dislike"}`);
+                console.log(`Feedback sent successfully:`, insightId, comment, isLike);
                 this.showToast("Thank you for your feedback!");
             } catch (error) {
                 console.error("Error sending feedback:", error);
             }
         };
-    
+
         likeButtons.forEach((btn) => {
-            btn.addEventListener("click", () => {
+            btn.addEventListener("click", async () => {
                 const insightId = btn.getAttribute("data-insight-id");
-                sendFeedback(insightId, true);
+                sendFeedback(insightId, '', true);
             });
         });
     
         dislikeButtons.forEach((btn) => {
-            btn.addEventListener("click", () => {                
+            btn.addEventListener("click", async () => {                
                 const insightId = btn.getAttribute("data-insight-id");
-                sendFeedback(insightId, false);
+                sendFeedback(insightId, '', false);
             });
         });
+    
+        commentButtons.forEach((btn) => {
+            btn.addEventListener("click", () => {
+                commentInsightId = btn.getAttribute("data-insight-id");
+                console.log(commentInsightId)
+                commentInput.value = ""; // Clear previous input
+                commentInput.classList.remove("error"); // Remove error class if any
+                commentInput.placeholder = "Type your feedback here..."; // Reset placeholder
+                modal.style.display = "flex"; // Show modal
+            });
+        });
+    
+        cancelButton.addEventListener("click", () => {
+            modal.style.display = "none";
+        });
+
+        sendButton.addEventListener("click", async () => {
+            // Check if the feedback text is empty
+            if (!commentInsightId || !commentInput.value.trim()) {
+                commentInput.classList.add("error");
+                commentInput.placeholder = "Please type your feedback...";
+                commentInput.focus();
+                return;
+            }
+            commentInput.classList.remove("error");
+            sendFeedback(commentInsightId, commentInput.value, null);
+            modal.style.display = "none";
+        });
+    }
+
+    toggleCommentModal(show, insightId = null) {
+        const modal = this.shadowRoot.querySelector("#commentModal");
+        modal.classList.toggle("active", show);
+        if (show) this.currentInsightId = insightId;
     }
 
     showToast(message) {
