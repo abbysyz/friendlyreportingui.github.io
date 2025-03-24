@@ -255,18 +255,6 @@ class InsightsWidget extends HTMLElement {
                     <img src="https://abbysyz.github.io/friendlyreportingui.github.io/assets/icons/lightbulb.svg" class="icon">
                     <span>All Insights</span>
                 </div>
-                // <div data-page="customization">
-                //     <img src="https://abbysyz.github.io/friendlyreportingui.github.io/assets/icons/customize.svg" class="icon">
-                //     <span>Customization</span>
-                // </div>
-                // <div data-page="info">
-                //     <img src="https://abbysyz.github.io/friendlyreportingui.github.io/assets/icons/information.svg" class="icon">
-                //     <span>Info</span>
-                // </div>
-                // <div data-page="contact">
-                //     <img src="https://abbysyz.github.io/friendlyreportingui.github.io/assets/icons/person.svg" class="icon">
-                //     <span>Contact Us</span>
-                // </div>
             </nav>
 
             <div class="main-content active" id="insights">
@@ -285,21 +273,6 @@ class InsightsWidget extends HTMLElement {
                     </div>
                 </div>
             </div>
-
-            // <div class="main-content" id="customization">
-            //     <h1>Customization</h1>
-            //     <p>Some customizable filters for insights.</p>
-            // </div>
-
-            // <div class="main-content" id="info">
-            //     <h1>Info Page</h1>
-            //     <p>Information about insights.</p>
-            // </div>
-
-            // <div class="main-content" id="contact">
-            //     <h1>Contact Us Page</h1>
-            //     <p>Contact information.</p>
-            // </div>
         `;
 
         this.setupNavigation();
