@@ -10,7 +10,7 @@ class InsightsWidget extends HTMLElement {
         this.captureTitleFromParent();
         this.render();
         this.setupNavigation();
-        
+
         this.style.overflow = "auto";
         this.style.height = "100%";
         this.style.display = "block";
@@ -18,7 +18,7 @@ class InsightsWidget extends HTMLElement {
             let parent = this.parentElement;
             while (parent) {
                 parent.style.overflow = "auto";
-                parent.style.maxHeight = "100vh"; // Ensure scrolling is possible
+                parent.style.maxHeight = "90vh"; // Ensure scrolling is possible
                 parent = parent.parentElement;
             }
         }, 100);
@@ -179,7 +179,7 @@ class InsightsWidget extends HTMLElement {
                 .panel {
                     padding: 0 18px;
                     background-color: #33333F;
-                    max-height: none;
+                    max-height: 0;
                     overflow: hidden;
                     transition: max-height 0.2s ease-out;
                 }
