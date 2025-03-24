@@ -255,18 +255,18 @@ class InsightsWidget extends HTMLElement {
                     <img src="https://abbysyz.github.io/friendlyreportingui.github.io/assets/icons/lightbulb.svg" class="icon">
                     <span>All Insights</span>
                 </div>
-                <div data-page="customization">
-                    <img src="https://abbysyz.github.io/friendlyreportingui.github.io/assets/icons/customize.svg" class="icon">
-                    <span>Customization</span>
-                </div>
-                <div data-page="info">
-                    <img src="https://abbysyz.github.io/friendlyreportingui.github.io/assets/icons/information.svg" class="icon">
-                    <span>Info</span>
-                </div>
-                <div data-page="contact">
-                    <img src="https://abbysyz.github.io/friendlyreportingui.github.io/assets/icons/person.svg" class="icon">
-                    <span>Contact Us</span>
-                </div>
+                // <div data-page="customization">
+                //     <img src="https://abbysyz.github.io/friendlyreportingui.github.io/assets/icons/customize.svg" class="icon">
+                //     <span>Customization</span>
+                // </div>
+                // <div data-page="info">
+                //     <img src="https://abbysyz.github.io/friendlyreportingui.github.io/assets/icons/information.svg" class="icon">
+                //     <span>Info</span>
+                // </div>
+                // <div data-page="contact">
+                //     <img src="https://abbysyz.github.io/friendlyreportingui.github.io/assets/icons/person.svg" class="icon">
+                //     <span>Contact Us</span>
+                // </div>
             </nav>
 
             <div class="main-content active" id="insights">
@@ -286,20 +286,20 @@ class InsightsWidget extends HTMLElement {
                 </div>
             </div>
 
-            <div class="main-content" id="customization">
-                <h1>Customization</h1>
-                <p>Some customizable filters for insights.</p>
-            </div>
+            // <div class="main-content" id="customization">
+            //     <h1>Customization</h1>
+            //     <p>Some customizable filters for insights.</p>
+            // </div>
 
-            <div class="main-content" id="info">
-                <h1>Info Page</h1>
-                <p>Information about insights.</p>
-            </div>
+            // <div class="main-content" id="info">
+            //     <h1>Info Page</h1>
+            //     <p>Information about insights.</p>
+            // </div>
 
-            <div class="main-content" id="contact">
-                <h1>Contact Us Page</h1>
-                <p>Contact information.</p>
-            </div>
+            // <div class="main-content" id="contact">
+            //     <h1>Contact Us Page</h1>
+            //     <p>Contact information.</p>
+            // </div>
         `;
 
         this.setupNavigation();
@@ -325,7 +325,7 @@ class InsightsWidget extends HTMLElement {
     }
 
     async fetchData() {
-        const apiEndpoint = "https://microdelivery-pipeline-lenny.me.sap.corp/api/v1/active_insights/insights";
+        const apiEndpoint = "https://hdbgerrit.wdf.sap.corp/c/infra/terraform/+/1820506/api/v1/active_insights/insights";
         // const apiEndpoint = "https://0.0.0.0:8000/api/v1/active_insights/insights";
         try {
             const response = await fetch(apiEndpoint);
@@ -414,7 +414,7 @@ class InsightsWidget extends HTMLElement {
 
         const sendFeedback = async (insightId, comment, isLike) => {
             try {
-                const response = await fetch("https://microdelivery-pipeline-lenny.me.sap.corp/api/v1/active_insights/feedbacks", {
+                const response = await fetch("https://hdbgerrit.wdf.sap.corp/c/infra/terraform/+/1820506/api/v1/active_insights/feedbacks", {
                     // const response = await fetch("https://0.0.0.0:8000/api/v1/active_insights/feedbacks", {
                     method: "POST",
                     headers: {
