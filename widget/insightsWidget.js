@@ -30,10 +30,8 @@ class InsightsWidget extends HTMLElement {
                     display: block;
                     font-family: '72', sans-serif;
                     color: white;
-                    // height: 90vh;
                     min-height: 90vh;
                     overflow: auto;
-                    // background-color: black;
                 }
                 header {
                     width: 100%;
@@ -78,8 +76,8 @@ class InsightsWidget extends HTMLElement {
                     color: white;
                     flex: 1;
                     margin-left: 200px;
-                    display: none; /* Hide all pages by default */
-                    overflow-y: auto; /* Enable vertical scrolling */
+                    display: none;
+                    overflow-y: auto;
                     max-height: 90vh;
                 }
                 .main-content.active {
@@ -122,7 +120,7 @@ class InsightsWidget extends HTMLElement {
                 .table-container {
                     overflow-y: auto;
                     display: block;
-                    max-height: 80vh;
+                    max-height: calc(100vh - 50px);;
                 }
                 table {
                     border-collapse: collapse;
