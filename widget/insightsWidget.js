@@ -79,6 +79,8 @@ class InsightsWidget extends HTMLElement {
                     flex: 1;
                     margin-left: 200px;
                     display: none; /* Hide all pages by default */
+                    overflow-y: auto; /* Enable vertical scrolling */
+                    max-height: 90vh;
                 }
                 .main-content.active {
                     display: block; /* Show active page */
@@ -118,10 +120,9 @@ class InsightsWidget extends HTMLElement {
                     opacity: 2;
                 }
                 .table-container {
-                    height: 80vh;
                     overflow-y: auto;
                     display: block;
-                    // height: calc(98vh - 70px);
+                    max-height: 80vh;
                 }
                 table {
                     border-collapse: collapse;
@@ -168,7 +169,7 @@ class InsightsWidget extends HTMLElement {
                 .panel {
                     padding: 0 18px;
                     background-color: #33333F;
-                    max-height: 0;
+                    max-height: none;
                     overflow: hidden;
                     transition: max-height 0.2s ease-out;
                 }
@@ -298,8 +299,8 @@ class InsightsWidget extends HTMLElement {
     }
 
     async fetchData() {
-        const apiEndpoint = "https://microdelivery-pipeline-lenny.lithium.me.sap.corp/api/v1/active_insights/insights";
-        // const apiEndpoint = "https://0.0.0.0:8000/api/v1/active_insights/insights";
+        // const apiEndpoint = "https://microdelivery-pipeline-lenny.lithium.me.sap.corp/api/v1/active_insights/insights";
+        const apiEndpoint = "https://0.0.0.0:8000/api/v1/active_insights/insights";
         try {
             const response = await fetch(apiEndpoint);
             const data = await response.json();
@@ -396,8 +397,8 @@ class InsightsWidget extends HTMLElement {
 
         const sendFeedback = async (insightId, comment, isLike) => {
             try {
-                const response = await fetch("https://microdelivery-pipeline-lenny.lithium.me.sap.corp/api/v1/active_insights/feedbacks", {
-                    // const response = await fetch("https://0.0.0.0:8000/api/v1/active_insights/feedbacks", {
+                // const response = await fetch("https://microdelivery-pipeline-lenny.lithium.me.sap.corp/api/v1/active_insights/feedbacks", {
+                    const response = await fetch("https://0.0.0.0:8000/api/v1/active_insights/feedbacks", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"
