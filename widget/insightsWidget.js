@@ -10,8 +10,18 @@ class InsightsWidget extends HTMLElement {
         this.captureTitleFromParent();
         this.render();
         this.setupNavigation();
-        this.style.overflow = "auto"; // Allow Web Component itself to scroll
-        this.style.height = "100%";  // Ensure full height for scrolling
+        
+        this.style.overflow = "auto";
+        this.style.height = "100%";
+        this.style.display = "block";
+        setTimeout(() => {
+            let parent = this.parentElement;
+            while (parent) {
+                parent.style.overflow = "auto";
+                parent.style.maxHeight = "100vh"; // Ensure scrolling is possible
+                parent = parent.parentElement;
+            }
+        }, 100);
     }
 
     captureTitleFromParent() {
