@@ -348,11 +348,20 @@ class InsightsWidget extends HTMLElement {
 
     setupAccordions() {
         const accordions = this.shadowRoot.querySelectorAll(".accordion");
+
         accordions.forEach((accordion) => {
+            const panel = accordion.nextElementSibling;
+            accordion.classList.add("active");
+            panel.style.maxHeight = panel.scrollHeight + "px";
+
             accordion.addEventListener("click", function () {
-                this.classList.toggle("active");
-                let panel = this.nextElementSibling;
-                panel.style.maxHeight = panel.style.maxHeight ? null : panel.scrollHeight + "px";
+                if (this.classList.contains("active")) {
+                    this.classList.remove("active");
+                    panel.style.maxHeight = null; // Collapse
+                } else {
+                    this.classList.add("active");
+                    panel.style.maxHeight = panel.scrollHeight + "px";
+                }
             });
         });
     }
