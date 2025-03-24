@@ -297,8 +297,8 @@ class InsightsWidget extends HTMLElement {
     }
 
     async fetchData() {
-        // const apiEndpoint = "https://microdelivery-pipeline-lenny.lithium.me.sap.corp/api/v1/active_insights/insights";
-        const apiEndpoint = "https://0.0.0.0:8000/api/v1/active_insights/insights";
+        const apiEndpoint = "https://microdelivery-pipeline-lenny.lithium.me.sap.corp/api/v1/active_insights/insights";
+        // const apiEndpoint = "https://0.0.0.0:8000/api/v1/active_insights/insights";
         try {
             const response = await fetch(apiEndpoint);
             const data = await response.json();
@@ -395,8 +395,8 @@ class InsightsWidget extends HTMLElement {
 
         const sendFeedback = async (insightId, comment, isLike) => {
             try {
-                // const response = await fetch("https://microdelivery-pipeline-lenny.lithium.me.sap.corp/api/v1/active_insights/feedbacks", {
-                    const response = await fetch("https://0.0.0.0:8000/api/v1/active_insights/feedbacks", {
+                const response = await fetch("https://microdelivery-pipeline-lenny.lithium.me.sap.corp/api/v1/active_insights/feedbacks", {
+                    // const response = await fetch("https://0.0.0.0:8000/api/v1/active_insights/feedbacks", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"
