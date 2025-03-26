@@ -311,7 +311,6 @@ class InsightsWidget extends HTMLElement {
             const data = await response.json();
             this.insightsData = data;
             this.populateTable();
-            console.log(encodeURIComponent(this.pageTitle))
         } catch (error) {
             console.error("Error fetching insights data:", error);
         }
@@ -321,29 +320,39 @@ class InsightsWidget extends HTMLElement {
         const tableBody = this.shadowRoot.querySelector("#insightsTable tbody");
         tableBody.innerHTML = "";
 
-        this.insightsData.forEach((insight, index) => {
+        const getFirstTwoWords = (text) => {
+            return text.split(/\s+/).slice(0, 2).join(" ").toLowerCase();
+        };
+    
+        const titleFirstTwoWords = getFirstTwoWords(this.pageTitle);
+        
+        const filteredInsights = this.insightsData.filter(insight => 
+            getFirstTwoWords(insight.reporting_platform_name) === titleFirstTwoWords || 
+            !this.insightsData.some(i => getFirstTwoWords(i.reporting_platform_name) === titleFirstTwoWords)
+        );
+    
+        filteredInsights.forEach((insight) => {
             const row = document.createElement("tr");
-
             row.innerHTML = `
                 <td>
                     <button class="accordion" style="font-size:16px; height: 65px">${insight.insight}</button>
                     <div class="panel">
-                            <p style="padding: 10px; font-size:14px;">${insight["content"]}</p>
-                            <div style="text-align:right;">
-                                <div class="tooltip like-btn" data-insight-id="${insight.id}" data-feedback="like">
-                                    <img src="https://abbysyz.github.io/friendlyreportingui.github.io/assets/icons/thumbup.svg" alt="Icon" class="icon" style="margin: 8px">
-                                    <span class="tooltiptext">Like</span>
-                                </div>
-                                <div class="tooltip dislike-btn" data-insight-id="${insight.id}" data-feedback="dislike">
-                                    <img src="https://abbysyz.github.io/friendlyreportingui.github.io/assets/icons/thumbdown.svg" alt="Icon" class="icon" style="margin: 8px">
-                                    <span class="tooltiptext">Dislike</span>
-                                </div>
-                                <div class="tooltip comment-btn" data-insight-id="${insight.id}">
-                                    <img src="https://abbysyz.github.io/friendlyreportingui.github.io/assets/icons/notification.svg" alt="Icon" class="icon" style="margin: 8px">
-                                    <span class="tooltiptext">Add comments</span>
-                                </div>
+                        <p style="padding: 10px; font-size:14px;">${insight["content"]}</p>
+                        <div style="text-align:right;">
+                            <div class="tooltip like-btn" data-insight-id="${insight.id}" data-feedback="like">
+                                <img src="https://abbysyz.github.io/friendlyreportingui.github.io/assets/icons/thumbup.svg" alt="Icon" class="icon" style="margin: 8px">
+                                <span class="tooltiptext">Like</span>
+                            </div>
+                            <div class="tooltip dislike-btn" data-insight-id="${insight.id}" data-feedback="dislike">
+                                <img src="https://abbysyz.github.io/friendlyreportingui.github.io/assets/icons/thumbdown.svg" alt="Icon" class="icon" style="margin: 8px">
+                                <span class="tooltiptext">Dislike</span>
+                            </div>
+                            <div class="tooltip comment-btn" data-insight-id="${insight.id}">
+                                <img src="https://abbysyz.github.io/friendlyreportingui.github.io/assets/icons/notification.svg" alt="Icon" class="icon" style="margin: 8px">
+                                <span class="tooltiptext">Add comments</span>
                             </div>
                         </div>
+                    </div>
                 </td>
             `;
             tableBody.appendChild(row);
