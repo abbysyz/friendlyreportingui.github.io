@@ -14,14 +14,14 @@ class InsightsWidget extends HTMLElement {
         this.style.overflow = "auto";
         this.style.height = "100%";
         this.style.display = "block";
-        setTimeout(() => {
-            let parent = this.parentElement;
-            while (parent) {
-                parent.style.overflow = "auto";
-                parent.style.maxHeight = "90vh"; // Ensure scrolling is possible
-                parent = parent.parentElement;
-            }
-        }, 100);
+        // setTimeout(() => {
+        //     let parent = this.parentElement;
+        //     while (parent) {
+        //         parent.style.overflow = "auto";
+        //         parent.style.maxHeight = "100vh"; // Ensure scrolling is possible
+        //         parent = parent.parentElement;
+        //     }
+        // }, 100);
     }
 
     captureTitleFromParent() {
@@ -146,11 +146,6 @@ class InsightsWidget extends HTMLElement {
                 th, td {
                     text-align: left;
                 }
-                // thead, tbody tr {
-                //     display: table;
-                //     width: 100%;
-                //     table-layout: fixed; /* Ensures column alignment */
-                // }
                 .accordion {
                     background-color: #27272F;
                     color: #DCE3E9;
