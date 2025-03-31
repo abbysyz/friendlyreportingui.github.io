@@ -108,6 +108,8 @@ class InsightsWidget extends HTMLElement {
                     position: relative;
                     display: inline-block;
                     cursor: pointer;
+                    max-width: 250px;
+                    width: auto;
                 }
                 .tooltip .tooltiptext {
                     visibility: hidden;
@@ -253,6 +255,7 @@ class InsightsWidget extends HTMLElement {
                     gap: 10px;
                     justify-content: flex-end;
                 }
+
             </style>
 
             <nav class="sidebar">
@@ -304,8 +307,8 @@ class InsightsWidget extends HTMLElement {
     }
 
     async fetchData() {
-        const apiEndpoint = "https://microdelivery-pipeline-lenny.lithium.me.sap.corp/api/v1/active_insights/insights";
-        // const apiEndpoint = "https://0.0.0.0:8000/api/v1/active_insights/insights";
+        // const apiEndpoint = "https://microdelivery-pipeline-lenny.lithium.me.sap.corp/api/v1/active_insights/insights";
+        const apiEndpoint = "https://0.0.0.0:8000/api/v1/active_insights/insights";
         try {
             const response = await fetch(apiEndpoint);
             const data = await response.json();
@@ -333,11 +336,18 @@ class InsightsWidget extends HTMLElement {
     
         filteredInsights.forEach((insight) => {
             const row = document.createElement("tr");
+            const containsTrend = insight.insight.toLowerCase().includes("trend") || insight.content.toLowerCase().includes("trend");
+
             row.innerHTML = `
                 <td>
                     <button class="accordion" style="font-size:16px; height: 65px">${insight.insight}</button>
                     <div class="panel">
                         <p style="padding: 10px; font-size:14px;">${insight["content"]}</p>
+                        ${containsTrend ? `
+                        <div class="tooltip trend-btn">
+                            <img src="https://abbysyz.github.io/friendlyreportingui.github.io/assets/icons/trend.svg" alt="Icon" class="icon" style="margin: 8px">
+                            <span class="tooltiptext">Trend image</span>
+                        </div>` : ''}
                         <div style="text-align:right;">
                             <div class="tooltip like-btn" data-insight-id="${insight.id}" data-feedback="like">
                                 <img src="https://abbysyz.github.io/friendlyreportingui.github.io/assets/icons/thumbup.svg" alt="Icon" class="icon" style="margin: 8px">
@@ -358,7 +368,8 @@ class InsightsWidget extends HTMLElement {
             tableBody.appendChild(row);
         });
         this.setupAccordions();
-        this.setupFeedbackButtons()
+        this.setupFeedbackButtons();
+        this.setupImagePopup();
     }
 
     setupAccordions() {
@@ -384,7 +395,7 @@ class InsightsWidget extends HTMLElement {
     toggleFavourite(index, button) {
         const icon = button.querySelector("img");
         this.insightsData[index].favorite = !this.insightsData[index].favorite;
-        icon.src = `/assets/icons/${this.insightsData[index].favorite ? 'favorite' : 'unfavorite'}.svg`;
+        icon.src = `https://abbysyz.github.io/friendlyreportingui.github.io/assets/icons/${this.insightsData[index].favorite ? 'favorite' : 'unfavorite'}.svg`;
     }
 
     searchTable() {
@@ -411,8 +422,8 @@ class InsightsWidget extends HTMLElement {
 
         const sendFeedback = async (insightId, comment, isLike) => {
             try {
-                const response = await fetch("https://microdelivery-pipeline-lenny.lithium.me.sap.corp/api/v1/active_insights/feedbacks", {
-                    // const response = await fetch("https://0.0.0.0:8000/api/v1/active_insights/feedbacks", {
+                // const response = await fetch("https://microdelivery-pipeline-lenny.lithium.me.sap.corp/api/v1/active_insights/feedbacks", {
+                    const response = await fetch("https://0.0.0.0:8000/api/v1/active_insights/feedbacks", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"
@@ -491,6 +502,39 @@ class InsightsWidget extends HTMLElement {
             toast.classList.remove("show");
         }, 4000);
     }
+
+    setupImagePopup() {
+        if (!this.shadowRoot.querySelector("#imagePopup")) {
+            const popup = document.createElement("div");
+            popup.id = "imagePopup";
+            popup.style.position = "fixed";
+            popup.style.top = "50%";
+            popup.style.left = "50%";
+            popup.style.transform = "translate(-40%, -40%)";
+            popup.style.background = "white";
+            popup.style.boxShadow = "0px 4px 6px rgba(0,0,0,0.1)";
+            popup.style.display = "none";
+            popup.style.padding = "10px";
+            popup.style.borderRadius = "8px";
+            popup.innerHTML = `
+                <button id="closePopup" style="position: absolute; top: 10px; right: 10px; background: red; color: white; border: none; border-radius: 5px; cursor: pointer;">X</button>
+                <img src="https://abbysyz.github.io/friendlyreportingui.github.io/assets/images/trend.png" alt="Popup Image" style="max-width: 100%; height: auto;">
+            `;
+            this.shadowRoot.appendChild(popup);
+    
+            this.shadowRoot.querySelector("#closePopup").addEventListener("click", () => {
+                popup.style.display = "none";
+            });
+        }
+    
+        this.shadowRoot.querySelectorAll(".trend-btn").forEach(button => {
+            button.addEventListener("click", () => {
+                this.shadowRoot.querySelector("#imagePopup").style.display = "block";
+            });
+        });
+    }    
+
+
     
 }
 customElements.define("insights-widget", InsightsWidget);
