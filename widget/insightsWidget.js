@@ -3,12 +3,14 @@ class InsightsWidget extends HTMLElement {
         super();
         this.attachShadow({ mode: "open" });
         this.insightsData = [];
+        this.feedbackCounts = {};
         this.pageTitle = '';
     }
 
     connectedCallback() {
         this.captureTitleFromParent();
         this.render();
+        // this.fetchFeedbackData();
         this.setupNavigation();
 
         this.style.overflow = "auto";
@@ -307,15 +309,41 @@ class InsightsWidget extends HTMLElement {
     }
 
     async fetchData() {
-        // const apiEndpoint = "https://microdelivery-pipeline-lenny.lithium.me.sap.corp/api/v1/active_insights/insights";
-        const apiEndpoint = "https://0.0.0.0:8000/api/v1/active_insights/insights";
+        const apiEndpoint = "https://microdelivery-pipeline-lenny.lithium.me.sap.corp/api/v1/active_insights/insights";
+        // const apiEndpoint = "https://0.0.0.0:8000/api/v1/active_insights/insights";
         try {
             const response = await fetch(apiEndpoint);
             const data = await response.json();
             this.insightsData = data;
-            this.populateTable();
+            this.fetchFeedbackData();
         } catch (error) {
             console.error("Error fetching insights data:", error);
+        }
+    }
+
+    async fetchFeedbackData() {
+        const apiEndpoint = "https://microdelivery-pipeline-lenny.lithium.me.sap.corp/api/v1/active_insights/feedbacks";
+        // const apiEndpoint = "https://0.0.0.0:8000/api/v1/active_insights/feedbacks";
+
+        try {
+            const response = await fetch(apiEndpoint);
+            const feedbackData = await response.json();
+
+            this.feedbackCounts = feedbackData.reduce((acc, feedback) => {
+                const { insight_id, is_like } = feedback;
+                if (!acc[insight_id]) {
+                    acc[insight_id] = { likes: 0, dislikes: 0 };
+                }
+                if (is_like) {
+                    acc[insight_id].likes++;
+                } else {
+                    acc[insight_id].dislikes++;
+                }
+                return acc;
+            }, {});
+            this.populateTable();
+        } catch (error) {
+            console.error("Error fetching feedback data:", error);
         }
     }
 
@@ -336,6 +364,7 @@ class InsightsWidget extends HTMLElement {
     
         filteredInsights.forEach((insight) => {
             const row = document.createElement("tr");
+            const feedback = this.feedbackCounts[insight.id] || { likes: 0, dislikes: 0 };
             const containsTrend = insight.insight.toLowerCase().includes("trend") || insight.content.toLowerCase().includes("trend");
 
             row.innerHTML = `
@@ -351,11 +380,11 @@ class InsightsWidget extends HTMLElement {
                         <div style="text-align:right;">
                             <div class="tooltip like-btn" data-insight-id="${insight.id}" data-feedback="like">
                                 <img src="https://abbysyz.github.io/friendlyreportingui.github.io/assets/icons/thumbup.svg" alt="Icon" class="icon" style="margin: 8px">
-                                <span class="tooltiptext">Like</span>
+                                <span class="tooltiptext">Like</span> <span class="feedback-count">${feedback.likes}</span>
                             </div>
                             <div class="tooltip dislike-btn" data-insight-id="${insight.id}" data-feedback="dislike">
                                 <img src="https://abbysyz.github.io/friendlyreportingui.github.io/assets/icons/thumbdown.svg" alt="Icon" class="icon" style="margin: 8px">
-                                <span class="tooltiptext">Dislike</span>
+                                <span class="tooltiptext">Dislike</span> <span class="feedback-count">${feedback.dislikes}</span>
                             </div>
                             <div class="tooltip comment-btn" data-insight-id="${insight.id}">
                                 <img src="https://abbysyz.github.io/friendlyreportingui.github.io/assets/icons/notification.svg" alt="Icon" class="icon" style="margin: 8px">
@@ -422,8 +451,8 @@ class InsightsWidget extends HTMLElement {
 
         const sendFeedback = async (insightId, comment, isLike) => {
             try {
-                // const response = await fetch("https://microdelivery-pipeline-lenny.lithium.me.sap.corp/api/v1/active_insights/feedbacks", {
-                    const response = await fetch("https://0.0.0.0:8000/api/v1/active_insights/feedbacks", {
+                    const response = await fetch("https://microdelivery-pipeline-lenny.lithium.me.sap.corp/api/v1/active_insights/feedbacks", {
+                    // const response = await fetch("https://0.0.0.0:8000/api/v1/active_insights/feedbacks", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"
@@ -439,8 +468,58 @@ class InsightsWidget extends HTMLElement {
                 }
                 console.log(`Feedback sent successfully:`, insightId, comment, isLike);
                 this.showToast("Thank you for your feedback!");
+                updateFeedbackCounts(insightId); 
             } catch (error) {
                 console.error("Error sending feedback:", error);
+            }
+        };
+
+        const updateFeedbackCounts = async (insightId) => {
+            try {
+                const response = await fetch(`https://microdelivery-pipeline-lenny.lithium.me.sap.corp/api/v1/active_insights/feedbacks?insight_id=${insightId}`);
+                // const response = await fetch(`https://0.0.0.0:8000/api/v1/active_insights/feedbacks?insight_id=${insightId}`);
+
+                const feedbackData = await response.json();
+    
+                // Count the number of likes and dislikes
+                const likeCount = feedbackData.filter(feedback => feedback.is_like).length;
+                const dislikeCount = feedbackData.filter(feedback => !feedback.is_like).length;
+    
+                // Update the UI with the counts
+                const insightRow = this.shadowRoot.querySelector(`tr[data-insight-id='${insightId}']`);
+                if (!insightRow) {
+                    console.error(`Insight row for insightId ${insightId} not found. Check if the correct insightId is assigned.`);
+                    return;
+                }
+                // if (insightRow) {
+                //     const likeCountElement = insightRow.querySelector(".like-count");
+                //     const dislikeCountElement = insightRow.querySelector(".dislike-count");
+    
+                //     if (likeCountElement) likeCountElement.textContent = `Likes: ${likeCount}`;
+                //     if (dislikeCountElement) dislikeCountElement.textContent = `Dislikes: ${dislikeCount}`;
+                // }
+                if (insightRow) {
+                    const likeCountElement = insightRow.querySelector(".like-count");
+                    const dislikeCountElement = insightRow.querySelector(".dislike-count");
+    
+                    if (likeCountElement) {
+                        likeCountElement.textContent = `Likes: ${likeCount}`;
+                        console.log("Updated like count element");
+                    } else {
+                        console.error("Like count element not found");
+                    }
+    
+                    if (dislikeCountElement) {
+                        dislikeCountElement.textContent = `Dislikes: ${dislikeCount}`;
+                        console.log("Updated dislike count element");
+                    } else {
+                        console.error("Dislike count element not found");
+                    }
+                } else {
+                    console.error(`Insight row for insightId ${insightId} not found`);
+                }
+            } catch (error) {
+                console.error("Error fetching feedback counts:", error);
             }
         };
 
