@@ -91,8 +91,6 @@ class InsightsWidget extends HTMLElement {
                     flex: 1;
                     margin-left: 200px;
                     display: none;
-                    overflow-y: auto;
-                    max-height: 90vh;
                 }
                 .main-content.active {
                     display: block; /* Show active page */
