@@ -16,14 +16,14 @@ class InsightsWidget extends HTMLElement {
         this.style.overflow = "auto";
         this.style.height = "100%";
         this.style.display = "block";
-        // setTimeout(() => {
-        //     let parent = this.parentElement;
-        //     while (parent) {
-        //         parent.style.overflow = "auto";
-        //         parent.style.maxHeight = "100vh"; // Ensure scrolling is possible
-        //         parent = parent.parentElement;
-        //     }
-        // }, 100);
+        setTimeout(() => {
+            let parent = this.parentElement;
+            while (parent) {
+                parent.style.overflow = "auto";
+                parent.style.maxHeight = "100vh"; // Ensure scrolling is possible
+                parent = parent.parentElement;
+            }
+        }, 100);
     }
 
     captureTitleFromParent() {
@@ -331,20 +331,20 @@ class InsightsWidget extends HTMLElement {
                   "create_datetime": "2025-04-09T05:35:27.433324Z"
                 },
                 {
-                    "insight": "Find the service with the max weekly average pipeline runtime during the last 2 months.",
-                    "content": "{\"objective\":\"Find the service with the max weekly average pipeline runtime during the last 2 months.\",\"answer\":\"The service with the maximum weekly average pipeline runtime during the last 2 months is NSE Advisor Service.\",\"key_info\":\"Service ID: ad1f6dfe-692f-4a70-8524-2daf05e78906; Service Name: NSE Advisor Service; Maximum Average Runtime: 88275480.9 milliseconds; Week: 202511\",\"explanation\":\"Maximum weekly average pipeline runtime is the highest average time taken by a service's data processing pipeline to execute during a week, measured in milliseconds.\"}",
-                    "reporting_platform_name": "y",
-                    "id": "d1300575-c05c-4485-a474-2b2feef5e59d",
-                    "create_datetime": "2025-04-09T05:26:50.192953Z"
-                  },
-                  {
-                    "insight": "Give me the service with the highest upwards trend of weekly pipeline failures during the last 2 months",
-                    "content": "{\"objective\":\"Give me the service with the highest upwards trend of weekly pipeline failures during the last 2 months\",\"answer\":\"The service with the highest upwards trend of weekly pipeline failures during the last 2 months is Hana Document Filters Plugin.\",\"key_info\":\"Service Name: Hana Document Filters Plugin; Trend Slope: 0.134\",\"explanation\":\"An upwards trend is defined by a positive slope in the data over time, indicating an increase in the measured value, which in this context is the ratio of pipeline failures. The slope of 0.134 indicates the rate at which pipeline failures are increasing weekly for the service.\"}",
-                    "reporting_platform_name": "y",
-                    "id": "38edd87c-658c-4696-a557-097b87e65fb7",
-                    "create_datetime": "2025-04-09T05:35:27.433324Z"
-                  }
-            ]
+                  "insight": "Find the service with the max weekly average pipeline runtime during the last 2 months.",
+                  "content": "{\"objective\":\"Find the service with the max weekly average pipeline runtime during the last 2 months.\",\"answer\":\"The service with the maximum weekly average pipeline runtime during the last 2 months is NSE Advisor Service.\",\"key_info\":\"Service ID: ad1f6dfe-692f-4a70-8524-2daf05e78906; Service Name: NSE Advisor Service; Maximum Average Runtime: 88275480.9 milliseconds; Week: 202511\",\"explanation\":\"Maximum weekly average pipeline runtime is the highest average time taken by a service's data processing pipeline to execute during a week, measured in milliseconds.\"}",
+                  "reporting_platform_name": "y",
+                  "id": "d1300575-c05c-4485-a474-2b2feef5e59d",
+                  "create_datetime": "2025-04-09T05:26:50.192953Z"
+                },
+                {
+                  "insight": "Give me the service with the highest upwards trend of weekly pipeline failures during the last 2 months",
+                  "content": "{\"objective\":\"Give me the service with the highest upwards trend of weekly pipeline failures during the last 2 months\",\"answer\":\"The service with the highest upwards trend of weekly pipeline failures during the last 2 months is Hana Document Filters Plugin.\",\"key_info\":\"Service Name: Hana Document Filters Plugin; Trend Slope: 0.134\",\"explanation\":\"An upwards trend is defined by a positive slope in the data over time, indicating an increase in the measured value, which in this context is the ratio of pipeline failures. The slope of 0.134 indicates the rate at which pipeline failures are increasing weekly for the service.\"}",
+                  "reporting_platform_name": "y",
+                  "id": "38edd87c-658c-4696-a557-097b87e65fb7",
+                  "create_datetime": "2025-04-09T05:35:27.433324Z"
+                }
+              ]
             this.fetchFeedbackData();
         } catch (error) {
             console.error("Error fetching insights data:", error);
