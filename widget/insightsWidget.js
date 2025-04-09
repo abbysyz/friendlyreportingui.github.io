@@ -347,7 +347,14 @@ class InsightsWidget extends HTMLElement {
                   "reporting_platform_name": "y",
                   "id": "38edd87c-658c-4696-a557-097b87e65fb7",
                   "create_datetime": "2025-04-09T05:35:27.433324Z"
-                }
+                },
+                {
+                    "insight": "Give me the service with the highest upwards trend of weekly pipeline failures during the last 2 months",
+                    "content": "{\"objective\":\"Give me the service with the highest upwards trend of weekly pipeline failures during the last 2 months\",\"answer\":\"The service with the highest upwards trend of weekly pipeline failures during the last 2 months is Hana Document Filters Plugin.\",\"key_info\":\"Service Name: Hana Document Filters Plugin; Trend Slope: 0.134\",\"explanation\":\"An upwards trend is defined by a positive slope in the data over time, indicating an increase in the measured value, which in this context is the ratio of pipeline failures. The slope of 0.134 indicates the rate at which pipeline failures are increasing weekly for the service.\"}",
+                    "reporting_platform_name": "y",
+                    "id": "38edd87c-658c-4696-a557-097b87e65fb7",
+                    "create_datetime": "2025-04-09T05:35:27.433324Z"
+                  }
               ]
             this.fetchFeedbackData();
         } catch (error) {
