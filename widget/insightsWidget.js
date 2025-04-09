@@ -150,6 +150,10 @@ class InsightsWidget extends HTMLElement {
                 th, td {
                     text-align: left;
                 }
+                .scrollable-content {
+                    max-height: calc(100vh - 80px); /* Adjust this value based on your header/footer height */
+                    overflow-y: auto;
+                }
                 .accordion {
                     background-color: #27272F;
                     color: #DCE3E9;
@@ -161,6 +165,7 @@ class InsightsWidget extends HTMLElement {
                     outline: none;
                     font-size: 15px;
                     transition: 0.4s;
+                    display: block;
                 }
                 .accordion.active, .accordion:hover {
                     background-color: #212125;
@@ -268,19 +273,21 @@ class InsightsWidget extends HTMLElement {
                 </div>
             </nav>
 
-            <div class="main-content active" id="insights">
-                <h1>All Insights</h1>
-                <div id="toast" class="toast">Feedback sent successfully!</div>
-                <table id="insightsTable" class="table-container">
-                    <tbody></tbody>
-                </table>
+            <div class="scrollable-content">
+                <div class="main-content active" id="insights">
+                    <h1>All Insights</h1>
+                    <div id="toast" class="toast">Feedback sent successfully!</div>
+                    <table id="insightsTable" class="table-container">
+                        <tbody></tbody>
+                    </table>
 
-                <div id="commentModal" class="modal" style="flex-direction: column;">
-                    <h3>Add Comments</h3>
-                    <textarea class="comment-input"></textarea>
-                    <div class="button-container">
-                        <button class="cancel-btn" style="height: 30px; width: 100px; border-radius: 5px;">Cancel</button>
-                        <button class="send-btn" style="height: 30px; width: 100px; border-radius: 5px;">Send</button>
+                    <div id="commentModal" class="modal" style="flex-direction: column;">
+                        <h3>Add Comments</h3>
+                        <textarea class="comment-input"></textarea>
+                        <div class="button-container">
+                            <button class="cancel-btn" style="height: 30px; width: 100px; border-radius: 5px;">Cancel</button>
+                            <button class="send-btn" style="height: 30px; width: 100px; border-radius: 5px;">Send</button>
+                        </div>
                     </div>
                 </div>
             </div>
