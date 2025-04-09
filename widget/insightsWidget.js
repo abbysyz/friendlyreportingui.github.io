@@ -363,28 +363,42 @@ class InsightsWidget extends HTMLElement {
         );
     
         filteredInsights.forEach((insight) => {
+            let parsedContent;
+            try {
+                parsedContent = JSON.parse(insight.content);
+            } catch (e) {
+                console.error("Failed to parse content JSON:", insight.content, e);
+                return;
+            }
+    
+            const { answer, key_info, explanation } = parsedContent;
             const row = document.createElement("tr");
             const feedback = this.feedbackCounts[insight.id] || { likes: 0, dislikes: 0 };
-            const containsTrend = insight.insight.toLowerCase().includes("trend") || insight.content.toLowerCase().includes("trend");
+            const containsTrend = answer.toLowerCase().includes("trend") || key_info.toLowerCase().includes("trend");
 
             row.innerHTML = `
                 <td>
-                    <button class="accordion" style="font-size:16px; height: 65px">${insight.insight}</button>
+                    <button class="accordion" style="font-size:16px; height: 65px">${answer}</button>
                     <div class="panel">
-                        <p style="padding: 10px; font-size:14px;">${insight["content"]}</p>
-                        ${containsTrend ? `
-                        <div class="tooltip trend-btn">
-                            <img src="https://abbysyz.github.io/friendlyreportingui.github.io/assets/icons/trend.svg" alt="Icon" class="icon" style="margin: 8px">
-                            <span class="tooltiptext">Trend image</span>
-                        </div>` : ''}
+                        <p style="padding: 10px; font-size:14px;">
+                            <span style="color: #E38100; font-weight: bold;">Key Info: </span>${key_info}
+                        </p>
+                        <p style="padding: 10px; font-size:14px;">
+                            <span style="color: #E38100; font-weight: bold;">Explanation: </span>${explanation}
+                        </p>
+                        ${containsTrend ? 
+                            `<div class="tooltip trend-btn">
+                                <img src="https://abbysyz.github.io/friendlyreportingui.github.io/assets/icons/trend.svg" alt="Icon" class="icon" style="margin: 8px">
+                                <span class="tooltiptext">Trend image</span>
+                            </div>` : ''}
                         <div style="text-align:right;">
                             <div class="tooltip like-btn" data-insight-id="${insight.id}" data-feedback="like">
                                 <img src="https://abbysyz.github.io/friendlyreportingui.github.io/assets/icons/thumbup.svg" alt="Icon" class="icon" style="margin: 8px">
-                                <span class="tooltiptext">Like</span> <span class="feedback-count">${feedback.likes}</span>
+                                <span class="tooltiptext">Like</span> <span class="feedback-count" style="font-size: 14px;">${feedback.likes}</span>
                             </div>
                             <div class="tooltip dislike-btn" data-insight-id="${insight.id}" data-feedback="dislike">
                                 <img src="https://abbysyz.github.io/friendlyreportingui.github.io/assets/icons/thumbdown.svg" alt="Icon" class="icon" style="margin: 8px">
-                                <span class="tooltiptext">Dislike</span> <span class="feedback-count">${feedback.dislikes}</span>
+                                <span class="tooltiptext">Dislike</span> <span class="feedback-count" style="font-size: 14px;">${feedback.dislikes}</span>
                             </div>
                             <div class="tooltip comment-btn" data-insight-id="${insight.id}">
                                 <img src="https://abbysyz.github.io/friendlyreportingui.github.io/assets/icons/notification.svg" alt="Icon" class="icon" style="margin: 8px">
