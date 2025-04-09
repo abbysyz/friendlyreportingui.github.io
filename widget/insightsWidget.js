@@ -380,16 +380,14 @@ class InsightsWidget extends HTMLElement {
                 <td>
                     <button class="accordion" style="font-size:16px; height: 65px">${answer}</button>
                     <div class="panel">
+                        <p style="padding: 10px; font-size:14px;">${explanation}</p>
                         <p style="padding: 10px; font-size:14px;">
-                            <span style="color: #E38100; font-weight: bold;">Key Info: </span>${key_info}
-                        </p>
-                        <p style="padding: 10px; font-size:14px;">
-                            <span style="color: #E38100; font-weight: bold;">Explanation: </span>${explanation}
+                            <span style="color: #E38100; font-weight: bold;">Details: </span>${key_info}
                         </p>
                         ${containsTrend ? 
                             `<div class="tooltip trend-btn">
                                 <img src="https://abbysyz.github.io/friendlyreportingui.github.io/assets/icons/trend.svg" alt="Icon" class="icon" style="margin: 8px">
-                                <span class="tooltiptext">Trend image</span>
+                                <span class="tooltiptext">Coming soon</span>
                             </div>` : ''}
                         <div style="text-align:right;">
                             <div class="tooltip like-btn" data-insight-id="${insight.id}" data-feedback="like">
@@ -609,10 +607,10 @@ class InsightsWidget extends HTMLElement {
             popup.style.display = "none";
             popup.style.padding = "10px";
             popup.style.borderRadius = "8px";
-            popup.innerHTML = `
-                <button id="closePopup" style="position: absolute; top: 10px; right: 10px; background: red; color: white; border: none; border-radius: 5px; cursor: pointer;">X</button>
-                <img src="https://abbysyz.github.io/friendlyreportingui.github.io/assets/images/trend.png" alt="Popup Image" style="max-width: 100%; height: auto;">
-            `;
+            // popup.innerHTML = `
+            //     <button id="closePopup" style="position: absolute; top: 10px; right: 10px; background: red; color: white; border: none; border-radius: 5px; cursor: pointer;">X</button>
+            //     <img src="https://abbysyz.github.io/friendlyreportingui.github.io/assets/images/trend.png" alt="Popup Image" style="max-width: 100%; height: auto;">
+            // `;
             this.shadowRoot.appendChild(popup);
     
             this.shadowRoot.querySelector("#closePopup").addEventListener("click", () => {
