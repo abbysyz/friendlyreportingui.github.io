@@ -273,24 +273,25 @@ class InsightsWidget extends HTMLElement {
                 </div>
             </nav>
 
-            <div class="scrollable-content">
+            
                 <div class="main-content active" id="insights">
                     <h1>All Insights</h1>
-                    <div id="toast" class="toast">Feedback sent successfully!</div>
-                    <table id="insightsTable" class="table-container">
-                        <tbody></tbody>
-                    </table>
+                    <div class="scrollable-content">
+                        <div id="toast" class="toast">Feedback sent successfully!</div>
+                        <table id="insightsTable" class="table-container">
+                            <tbody></tbody>
+                        </table>
 
-                    <div id="commentModal" class="modal" style="flex-direction: column;">
-                        <h3>Add Comments</h3>
-                        <textarea class="comment-input"></textarea>
-                        <div class="button-container">
-                            <button class="cancel-btn" style="height: 30px; width: 100px; border-radius: 5px;">Cancel</button>
-                            <button class="send-btn" style="height: 30px; width: 100px; border-radius: 5px;">Send</button>
+                        <div id="commentModal" class="modal" style="flex-direction: column;">
+                            <h3>Add Comments</h3>
+                            <textarea class="comment-input"></textarea>
+                            <div class="button-container">
+                                <button class="cancel-btn" style="height: 30px; width: 100px; border-radius: 5px;">Cancel</button>
+                                <button class="send-btn" style="height: 30px; width: 100px; border-radius: 5px;">Send</button>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
         `;
 
         this.setupNavigation();
