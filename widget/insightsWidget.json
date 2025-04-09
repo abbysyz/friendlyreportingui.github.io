@@ -1,15 +1,16 @@
 {
     "name": "InsightsWidget",
     "newInstancePrefix": "Insights_Widget",
+    "icon": "https://abbysyz.github.io/friendlyreportingui.github.io/widget/insights.png",
     "id": "com.custom.insights",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "Active Insights Widget",
     "vendor": "SAP Active Insights",
     "webcomponents": [
       {
           "kind": "main",
           "tag": "insights-widget",
-          "url": "https://abbysyz.github.io/friendlyreportingui.github.io/widget/insightsWidget.js",
+          "url": "https://abbysyz.github.io/friendlyreportingui.github.io/widget/insightsWidget.js?v=1",
           "integrity": "",
           "ignoreIntegrity": true
       }
