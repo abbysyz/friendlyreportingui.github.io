@@ -136,7 +136,7 @@ class InsightsWidget extends HTMLElement {
                 .table-container {
                     overflow-y: auto;
                     display: block;
-                    max-height: calc(100vh - 50px);;
+                    max-height: 70vh;
                 }
                 table {
                     border-collapse: collapse;
@@ -276,19 +276,17 @@ class InsightsWidget extends HTMLElement {
             
                 <div class="main-content active" id="insights">
                     <h1>All Insights</h1>
-                    <div class="scrollable-content">
-                        <div id="toast" class="toast">Feedback sent successfully!</div>
-                        <table id="insightsTable" class="table-container">
-                            <tbody></tbody>
-                        </table>
+                    <div id="toast" class="toast">Feedback sent successfully!</div>
+                    <table id="insightsTable" class="table-container">
+                        <tbody></tbody>
+                    </table>
 
-                        <div id="commentModal" class="modal" style="flex-direction: column;">
-                            <h3>Add Comments</h3>
-                            <textarea class="comment-input"></textarea>
-                            <div class="button-container">
-                                <button class="cancel-btn" style="height: 30px; width: 100px; border-radius: 5px;">Cancel</button>
-                                <button class="send-btn" style="height: 30px; width: 100px; border-radius: 5px;">Send</button>
-                            </div>
+                    <div id="commentModal" class="modal" style="flex-direction: column;">
+                        <h3>Add Comments</h3>
+                        <textarea class="comment-input"></textarea>
+                        <div class="button-container">
+                            <button class="cancel-btn" style="height: 30px; width: 100px; border-radius: 5px;">Cancel</button>
+                            <button class="send-btn" style="height: 30px; width: 100px; border-radius: 5px;">Send</button>
                         </div>
                     </div>
                 </div>
