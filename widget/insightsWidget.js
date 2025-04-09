@@ -13,17 +13,17 @@ class InsightsWidget extends HTMLElement {
         // this.fetchFeedbackData();
         this.setupNavigation();
 
-        this.style.overflow = "auto";
-        this.style.height = "100%";
-        this.style.display = "block";
-        setTimeout(() => {
-            let parent = this.parentElement;
-            while (parent) {
-                parent.style.overflow = "auto";
-                parent.style.maxHeight = "100vh"; // Ensure scrolling is possible
-                parent = parent.parentElement;
-            }
-        }, 100);
+        // this.style.overflow = "auto";
+        // this.style.height = "100%";
+        // this.style.display = "block";
+        // setTimeout(() => {
+        //     let parent = this.parentElement;
+        //     while (parent) {
+        //         parent.style.overflow = "auto";
+        //         parent.style.maxHeight = "100vh"; // Ensure scrolling is possible
+        //         parent = parent.parentElement;
+        //     }
+        // }, 100);
     }
 
     captureTitleFromParent() {
@@ -45,7 +45,7 @@ class InsightsWidget extends HTMLElement {
                     font-family: '72', sans-serif;
                     color: white;
                     min-height: 90vh;
-                    overflow: auto;
+                    // overflow: auto;
                 }
                 header {
                     width: 100%;
