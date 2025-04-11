@@ -99,6 +99,7 @@ class InsightsWidget extends HTMLElement {
                     width: 20px;
                     height: 20px;
                     margin-right: 10px; 
+                    vertical-align: middle;
                 }
                 button {
                     background-color: transparent;
@@ -377,6 +378,7 @@ class InsightsWidget extends HTMLElement {
     
             const { answer, key_info, explanation } = parsedContent;
             const row = document.createElement("tr");
+            row.setAttribute("data-insight-id", insight.id);
             const feedback = this.feedbackCounts[insight.id] || { likes: 0, dislikes: 0 };
             const containsTrend = answer.toLowerCase().includes("trend") || key_info.toLowerCase().includes("trend");
 
@@ -395,12 +397,12 @@ class InsightsWidget extends HTMLElement {
                             </div>` : ''}
                         <div style="text-align:right;">
                             <div class="tooltip like-btn" data-insight-id="${insight.id}" data-feedback="like">
-                                <img src="https://abbysyz.github.io/friendlyreportingui.github.io/assets/icons/thumbup.svg" alt="Icon" class="icon" style="margin: 8px">
-                                <span class="tooltiptext">Like</span> <span class="feedback-count" style="font-size: 14px;">${feedback.likes}</span>
+                                <img src="https://abbysyz.github.io/friendlyreportingui.github.io/assets/icons/like_lineal.svg" alt="Icon" class="icon" style="margin: 8px; ">
+                                <span class="tooltiptext">Like</span> <span class="like-count" style="font-size: 14px;">${feedback.likes}</span>
                             </div>
                             <div class="tooltip dislike-btn" data-insight-id="${insight.id}" data-feedback="dislike">
-                                <img src="https://abbysyz.github.io/friendlyreportingui.github.io/assets/icons/thumbdown.svg" alt="Icon" class="icon" style="margin: 8px">
-                                <span class="tooltiptext">Dislike</span> <span class="feedback-count" style="font-size: 14px;">${feedback.dislikes}</span>
+                                <img src="https://abbysyz.github.io/friendlyreportingui.github.io/assets/icons/dislike_lineal.svg" alt="Icon" class="icon" style="margin: 8px">
+                                <span class="tooltiptext">Dislike</span> <span class="dislike-count" style="font-size: 14px;">${feedback.dislikes}</span>
                             </div>
                             <div class="tooltip comment-btn" data-insight-id="${insight.id}">
                                 <img src="https://abbysyz.github.io/friendlyreportingui.github.io/assets/icons/notification.svg" alt="Icon" class="icon" style="margin: 8px">
@@ -466,9 +468,37 @@ class InsightsWidget extends HTMLElement {
         let commentInsightId = "";
 
         const sendFeedback = async (insightId, comment, isLike) => {
+            const insightRow = this.shadowRoot.querySelector(`tr[data-insight-id='${insightId}']`);
+            // Select the like/dislike button and count elements
+            const iconSelector = isLike ? '.like-btn img' : '.dislike-btn img';
+            const countSelector = isLike ? '.like-count' : '.dislike-count';
+            const oppositeIconSelector = isLike ? '.dislike-btn img' : '.like-btn img';
+
+            const icon = insightRow.querySelector(iconSelector);
+            const countSpan = insightRow.querySelector(countSelector);
+            const oppositeIcon = insightRow.querySelector(oppositeIconSelector);
+
+            // Check if already liked/disliked
+            if (icon.src.includes(`${isLike ? 'like_filled' : 'dislike_filled'}`)) {
+                this.showToast(`You already ${isLike ? 'liked' : 'disliked'}!`, "error");
+                return;
+            }
+
+            // Update UI with filled icons and counts
+            if (icon && countSpan) {
+                icon.src = `https://abbysyz.github.io/friendlyreportingui.github.io/assets/icons/${isLike ? 'like_filled' : 'dislike_filled'}.svg`;
+
+                if (oppositeIcon) {
+                    oppositeIcon.src = `https://abbysyz.github.io/friendlyreportingui.github.io/assets/icons/${isLike ? 'dislike_lineal' : 'like_lineal'}.svg`;
+                }
+
+                const currentCount = parseInt(countSpan.textContent, 10) || 0;
+                countSpan.textContent = currentCount + 1;
+            } 
+
             try {
-                    const response = await fetch("https://microdelivery-pipeline-lenny.lithium.me.sap.corp/api/v1/active_insights/feedbacks", {
-                    // const response = await fetch("https://0.0.0.0:8000/api/v1/active_insights/feedbacks", {
+                const response = await fetch("https://microdelivery-pipeline-lenny.lithium.me.sap.corp/api/v1/active_insights/feedbacks", {
+                // const response = await fetch("https://0.0.0.0:8000/api/v1/active_insights/feedbacks", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"
@@ -483,59 +513,9 @@ class InsightsWidget extends HTMLElement {
                     throw new Error("Failed to send feedback");
                 }
                 console.log(`Feedback sent successfully:`, insightId, comment, isLike);
-                this.showToast("Thank you for your feedback!");
-                updateFeedbackCounts(insightId); 
+                this.showToast("Thank you for your feedback!", "info");
             } catch (error) {
                 console.error("Error sending feedback:", error);
-            }
-        };
-
-        const updateFeedbackCounts = async (insightId) => {
-            try {
-                const response = await fetch(`https://microdelivery-pipeline-lenny.lithium.me.sap.corp/api/v1/active_insights/feedbacks?insight_id=${insightId}`);
-                // const response = await fetch(`https://0.0.0.0:8000/api/v1/active_insights/feedbacks?insight_id=${insightId}`);
-
-                const feedbackData = await response.json();
-    
-                // Count the number of likes and dislikes
-                const likeCount = feedbackData.filter(feedback => feedback.is_like).length;
-                const dislikeCount = feedbackData.filter(feedback => !feedback.is_like).length;
-    
-                // Update the UI with the counts
-                const insightRow = this.shadowRoot.querySelector(`tr[data-insight-id='${insightId}']`);
-                if (!insightRow) {
-                    console.error(`Insight row for insightId ${insightId} not found. Check if the correct insightId is assigned.`);
-                    return;
-                }
-                // if (insightRow) {
-                //     const likeCountElement = insightRow.querySelector(".like-count");
-                //     const dislikeCountElement = insightRow.querySelector(".dislike-count");
-    
-                //     if (likeCountElement) likeCountElement.textContent = `Likes: ${likeCount}`;
-                //     if (dislikeCountElement) dislikeCountElement.textContent = `Dislikes: ${dislikeCount}`;
-                // }
-                if (insightRow) {
-                    const likeCountElement = insightRow.querySelector(".like-count");
-                    const dislikeCountElement = insightRow.querySelector(".dislike-count");
-    
-                    if (likeCountElement) {
-                        likeCountElement.textContent = `Likes: ${likeCount}`;
-                        console.log("Updated like count element");
-                    } else {
-                        console.error("Like count element not found");
-                    }
-    
-                    if (dislikeCountElement) {
-                        dislikeCountElement.textContent = `Dislikes: ${dislikeCount}`;
-                        console.log("Updated dislike count element");
-                    } else {
-                        console.error("Dislike count element not found");
-                    }
-                } else {
-                    console.error(`Insight row for insightId ${insightId} not found`);
-                }
-            } catch (error) {
-                console.error("Error fetching feedback counts:", error);
             }
         };
 
@@ -588,14 +568,16 @@ class InsightsWidget extends HTMLElement {
         if (show) this.currentInsightId = insightId;
     }
 
-    showToast(message) {
+    showToast(message, type = "info") {
         const toast = this.shadowRoot.getElementById("toast");
         toast.textContent = message;
+        toast.style.color = type === "error" ? "#f44336" : "#27272F"; //red or default dark
+        // toast.style.display = "block";
         toast.classList.add("show");
     
         setTimeout(() => {
             toast.classList.remove("show");
-        }, 4000);
+        }, 3000);
     }
 
     setupImagePopup() {

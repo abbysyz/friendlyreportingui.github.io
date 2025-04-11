@@ -3,13 +3,27 @@ class InsightsWidget extends HTMLElement {
         super();
         this.attachShadow({ mode: "open" });
         this.insightsData = [];
+        this.feedbackCounts = {};
         this.pageTitle = '';
     }
 
     connectedCallback() {
         this.captureTitleFromParent();
         this.render();
+        // this.fetchFeedbackData();
         this.setupNavigation();
+
+        this.style.overflow = "auto";
+        this.style.height = "100%";
+        this.style.display = "block";
+        // setTimeout(() => {
+        //     let parent = this.parentElement;
+        //     while (parent) {
+        //         parent.style.overflow = "auto";
+        //         parent.style.maxHeight = "100vh"; // Ensure scrolling is possible
+        //         parent = parent.parentElement;
+        //     }
+        // }, 100);
     }
 
     captureTitleFromParent() {
@@ -30,10 +44,8 @@ class InsightsWidget extends HTMLElement {
                     display: block;
                     font-family: '72', sans-serif;
                     color: white;
-                    // height: 90vh;
                     min-height: 90vh;
                     overflow: auto;
-                    // background-color: black;
                 }
                 header {
                     width: 100%;
@@ -78,7 +90,9 @@ class InsightsWidget extends HTMLElement {
                     color: white;
                     flex: 1;
                     margin-left: 200px;
-                    display: none; /* Hide all pages by default */
+                    display: none;
+                    overflow-y: auto;
+                    max-height: 90vh;
                 }
                 .main-content.active {
                     display: block; /* Show active page */
@@ -96,6 +110,8 @@ class InsightsWidget extends HTMLElement {
                     position: relative;
                     display: inline-block;
                     cursor: pointer;
+                    max-width: 250px;
+                    width: auto;
                 }
                 .tooltip .tooltiptext {
                     visibility: hidden;
@@ -118,10 +134,9 @@ class InsightsWidget extends HTMLElement {
                     opacity: 2;
                 }
                 .table-container {
-                    height: 80vh;
                     overflow-y: auto;
                     display: block;
-                    // height: calc(98vh - 70px);
+                    max-height: calc(100vh - 50px);;
                 }
                 table {
                     border-collapse: collapse;
@@ -135,11 +150,6 @@ class InsightsWidget extends HTMLElement {
                 th, td {
                     text-align: left;
                 }
-                // thead, tbody tr {
-                //     display: table;
-                //     width: 100%;
-                //     table-layout: fixed; /* Ensures column alignment */
-                // }
                 .accordion {
                     background-color: #27272F;
                     color: #DCE3E9;
@@ -247,6 +257,7 @@ class InsightsWidget extends HTMLElement {
                     gap: 10px;
                     justify-content: flex-end;
                 }
+
             </style>
 
             <nav class="sidebar">
@@ -254,18 +265,6 @@ class InsightsWidget extends HTMLElement {
                 <div data-page="insights">
                     <img src="https://abbysyz.github.io/friendlyreportingui.github.io/assets/icons/lightbulb.svg" class="icon">
                     <span>All Insights</span>
-                </div>
-                <div data-page="customization">
-                    <img src="https://abbysyz.github.io/friendlyreportingui.github.io/assets/icons/customize.svg" class="icon">
-                    <span>Customization</span>
-                </div>
-                <div data-page="info">
-                    <img src="https://abbysyz.github.io/friendlyreportingui.github.io/assets/icons/information.svg" class="icon">
-                    <span>Info</span>
-                </div>
-                <div data-page="contact">
-                    <img src="https://abbysyz.github.io/friendlyreportingui.github.io/assets/icons/person.svg" class="icon">
-                    <span>Contact Us</span>
                 </div>
             </nav>
 
@@ -284,21 +283,6 @@ class InsightsWidget extends HTMLElement {
                         <button class="send-btn" style="height: 30px; width: 100px; border-radius: 5px;">Send</button>
                     </div>
                 </div>
-            </div>
-
-            <div class="main-content" id="customization">
-                <h1>Customization</h1>
-                <p>Some customizable filters for insights.</p>
-            </div>
-
-            <div class="main-content" id="info">
-                <h1>Info Page</h1>
-                <p>Information about insights.</p>
-            </div>
-
-            <div class="main-content" id="contact">
-                <h1>Contact Us Page</h1>
-                <p>Contact information.</p>
             </div>
         `;
 
@@ -325,16 +309,41 @@ class InsightsWidget extends HTMLElement {
     }
 
     async fetchData() {
-        const apiEndpoint = "https://hdbgerrit.wdf.sap.corp/c/infra/terraform/+/1820506/api/v1/active_insights/insights";
+        const apiEndpoint = "https://microdelivery-pipeline-lenny.lithium.me.sap.corp/api/v1/active_insights/insights";
         // const apiEndpoint = "https://0.0.0.0:8000/api/v1/active_insights/insights";
         try {
             const response = await fetch(apiEndpoint);
             const data = await response.json();
             this.insightsData = data;
-            this.populateTable();
-            console.log(encodeURIComponent(this.pageTitle))
+            this.fetchFeedbackData();
         } catch (error) {
             console.error("Error fetching insights data:", error);
+        }
+    }
+
+    async fetchFeedbackData() {
+        const apiEndpoint = "https://microdelivery-pipeline-lenny.lithium.me.sap.corp/api/v1/active_insights/feedbacks";
+        // const apiEndpoint = "https://0.0.0.0:8000/api/v1/active_insights/feedbacks";
+
+        try {
+            const response = await fetch(apiEndpoint);
+            const feedbackData = await response.json();
+
+            this.feedbackCounts = feedbackData.reduce((acc, feedback) => {
+                const { insight_id, is_like } = feedback;
+                if (!acc[insight_id]) {
+                    acc[insight_id] = { likes: 0, dislikes: 0 };
+                }
+                if (is_like) {
+                    acc[insight_id].likes++;
+                } else {
+                    acc[insight_id].dislikes++;
+                }
+                return acc;
+            }, {});
+            this.populateTable();
+        } catch (error) {
+            console.error("Error fetching feedback data:", error);
         }
     }
 
@@ -342,44 +351,84 @@ class InsightsWidget extends HTMLElement {
         const tableBody = this.shadowRoot.querySelector("#insightsTable tbody");
         tableBody.innerHTML = "";
 
-        this.insightsData.forEach((insight, index) => {
+        const getFirstTwoWords = (text) => {
+            return text.split(/\s+/).slice(0, 2).join(" ").toLowerCase();
+        };
+    
+        const titleFirstTwoWords = getFirstTwoWords(this.pageTitle);
+        
+        const filteredInsights = this.insightsData.filter(insight => 
+            getFirstTwoWords(insight.reporting_platform_name) === titleFirstTwoWords || 
+            !this.insightsData.some(i => getFirstTwoWords(i.reporting_platform_name) === titleFirstTwoWords)
+        );
+    
+        filteredInsights.forEach((insight) => {
+            let parsedContent;
+            try {
+                parsedContent = JSON.parse(insight.content);
+            } catch (e) {
+                console.error("Failed to parse content JSON:", insight.content, e);
+                return;
+            }
+    
+            const { answer, key_info, explanation } = parsedContent;
             const row = document.createElement("tr");
+            const feedback = this.feedbackCounts[insight.id] || { likes: 0, dislikes: 0 };
+            const containsTrend = answer.toLowerCase().includes("trend") || key_info.toLowerCase().includes("trend");
 
             row.innerHTML = `
                 <td>
-                    <button class="accordion" style="font-size:16px; height: 65px">${insight.insight}</button>
+                    <button class="accordion" style="font-size:16px; height: 65px">${answer}</button>
                     <div class="panel">
-                            <p style="padding: 10px; font-size:14px;">${insight["content"]}</p>
-                            <div style="text-align:right;">
-                                <div class="tooltip like-btn" data-insight-id="${insight.id}" data-feedback="like">
-                                    <img src="https://abbysyz.github.io/friendlyreportingui.github.io/assets/icons/thumbup.svg" alt="Icon" class="icon" style="margin: 8px">
-                                    <span class="tooltiptext">Like</span>
-                                </div>
-                                <div class="tooltip dislike-btn" data-insight-id="${insight.id}" data-feedback="dislike">
-                                    <img src="https://abbysyz.github.io/friendlyreportingui.github.io/assets/icons/thumbdown.svg" alt="Icon" class="icon" style="margin: 8px">
-                                    <span class="tooltiptext">Dislike</span>
-                                </div>
-                                <div class="tooltip comment-btn" data-insight-id="${insight.id}">
-                                    <img src="https://abbysyz.github.io/friendlyreportingui.github.io/assets/icons/notification.svg" alt="Icon" class="icon" style="margin: 8px">
-                                    <span class="tooltiptext">Add comments</span>
-                                </div>
+                        <p style="padding: 10px; font-size:14px;">${explanation}</p>
+                        <p style="padding: 10px; font-size:14px;">
+                            <span style="color: #E38100; font-weight: bold;">Details: </span>${key_info}
+                        </p>
+                        ${containsTrend ? 
+                            `<div class="tooltip trend-btn">
+                                <img src="https://abbysyz.github.io/friendlyreportingui.github.io/assets/icons/trend.svg" alt="Icon" class="icon" style="margin: 8px">
+                                <span class="tooltiptext">Coming soon</span>
+                            </div>` : ''}
+                        <div style="text-align:right;">
+                            <div class="tooltip like-btn" data-insight-id="${insight.id}" data-feedback="like">
+                                <img src="https://abbysyz.github.io/friendlyreportingui.github.io/assets/icons/thumbup.svg" alt="Icon" class="icon" style="margin: 8px">
+                                <span class="tooltiptext">Like</span> <span class="feedback-count" style="font-size: 14px;">${feedback.likes}</span>
+                            </div>
+                            <div class="tooltip dislike-btn" data-insight-id="${insight.id}" data-feedback="dislike">
+                                <img src="https://abbysyz.github.io/friendlyreportingui.github.io/assets/icons/thumbdown.svg" alt="Icon" class="icon" style="margin: 8px">
+                                <span class="tooltiptext">Dislike</span> <span class="feedback-count" style="font-size: 14px;">${feedback.dislikes}</span>
+                            </div>
+                            <div class="tooltip comment-btn" data-insight-id="${insight.id}">
+                                <img src="https://abbysyz.github.io/friendlyreportingui.github.io/assets/icons/notification.svg" alt="Icon" class="icon" style="margin: 8px">
+                                <span class="tooltiptext">Add comments</span>
                             </div>
                         </div>
+                    </div>
                 </td>
             `;
             tableBody.appendChild(row);
         });
         this.setupAccordions();
-        this.setupFeedbackButtons()
+        this.setupFeedbackButtons();
+        this.setupImagePopup();
     }
 
     setupAccordions() {
         const accordions = this.shadowRoot.querySelectorAll(".accordion");
+
         accordions.forEach((accordion) => {
+            const panel = accordion.nextElementSibling;
+            accordion.classList.add("active");
+            panel.style.maxHeight = panel.scrollHeight + "px";
+
             accordion.addEventListener("click", function () {
-                this.classList.toggle("active");
-                let panel = this.nextElementSibling;
-                panel.style.maxHeight = panel.style.maxHeight ? null : panel.scrollHeight + "px";
+                if (this.classList.contains("active")) {
+                    this.classList.remove("active");
+                    panel.style.maxHeight = null; // Collapse
+                } else {
+                    this.classList.add("active");
+                    panel.style.maxHeight = panel.scrollHeight + "px";
+                }
             });
         });
     }
@@ -387,7 +436,7 @@ class InsightsWidget extends HTMLElement {
     toggleFavourite(index, button) {
         const icon = button.querySelector("img");
         this.insightsData[index].favorite = !this.insightsData[index].favorite;
-        icon.src = `/assets/icons/${this.insightsData[index].favorite ? 'favorite' : 'unfavorite'}.svg`;
+        icon.src = `https://abbysyz.github.io/friendlyreportingui.github.io/assets/icons/${this.insightsData[index].favorite ? 'favorite' : 'unfavorite'}.svg`;
     }
 
     searchTable() {
@@ -414,7 +463,7 @@ class InsightsWidget extends HTMLElement {
 
         const sendFeedback = async (insightId, comment, isLike) => {
             try {
-                const response = await fetch("https://hdbgerrit.wdf.sap.corp/c/infra/terraform/+/1820506/api/v1/active_insights/feedbacks", {
+                    const response = await fetch("https://microdelivery-pipeline-lenny.lithium.me.sap.corp/api/v1/active_insights/feedbacks", {
                     // const response = await fetch("https://0.0.0.0:8000/api/v1/active_insights/feedbacks", {
                     method: "POST",
                     headers: {
@@ -431,8 +480,58 @@ class InsightsWidget extends HTMLElement {
                 }
                 console.log(`Feedback sent successfully:`, insightId, comment, isLike);
                 this.showToast("Thank you for your feedback!");
+                updateFeedbackCounts(insightId); 
             } catch (error) {
                 console.error("Error sending feedback:", error);
+            }
+        };
+
+        const updateFeedbackCounts = async (insightId) => {
+            try {
+                const response = await fetch(`https://microdelivery-pipeline-lenny.lithium.me.sap.corp/api/v1/active_insights/feedbacks?insight_id=${insightId}`);
+                // const response = await fetch(`https://0.0.0.0:8000/api/v1/active_insights/feedbacks?insight_id=${insightId}`);
+
+                const feedbackData = await response.json();
+    
+                // Count the number of likes and dislikes
+                const likeCount = feedbackData.filter(feedback => feedback.is_like).length;
+                const dislikeCount = feedbackData.filter(feedback => !feedback.is_like).length;
+    
+                // Update the UI with the counts
+                const insightRow = this.shadowRoot.querySelector(`tr[data-insight-id='${insightId}']`);
+                if (!insightRow) {
+                    console.error(`Insight row for insightId ${insightId} not found. Check if the correct insightId is assigned.`);
+                    return;
+                }
+                // if (insightRow) {
+                //     const likeCountElement = insightRow.querySelector(".like-count");
+                //     const dislikeCountElement = insightRow.querySelector(".dislike-count");
+    
+                //     if (likeCountElement) likeCountElement.textContent = `Likes: ${likeCount}`;
+                //     if (dislikeCountElement) dislikeCountElement.textContent = `Dislikes: ${dislikeCount}`;
+                // }
+                if (insightRow) {
+                    const likeCountElement = insightRow.querySelector(".like-count");
+                    const dislikeCountElement = insightRow.querySelector(".dislike-count");
+    
+                    if (likeCountElement) {
+                        likeCountElement.textContent = `Likes: ${likeCount}`;
+                        console.log("Updated like count element");
+                    } else {
+                        console.error("Like count element not found");
+                    }
+    
+                    if (dislikeCountElement) {
+                        dislikeCountElement.textContent = `Dislikes: ${dislikeCount}`;
+                        console.log("Updated dislike count element");
+                    } else {
+                        console.error("Dislike count element not found");
+                    }
+                } else {
+                    console.error(`Insight row for insightId ${insightId} not found`);
+                }
+            } catch (error) {
+                console.error("Error fetching feedback counts:", error);
             }
         };
 
@@ -494,6 +593,39 @@ class InsightsWidget extends HTMLElement {
             toast.classList.remove("show");
         }, 4000);
     }
+
+    setupImagePopup() {
+        if (!this.shadowRoot.querySelector("#imagePopup")) {
+            const popup = document.createElement("div");
+            popup.id = "imagePopup";
+            popup.style.position = "fixed";
+            popup.style.top = "50%";
+            popup.style.left = "50%";
+            popup.style.transform = "translate(-40%, -40%)";
+            popup.style.background = "white";
+            popup.style.boxShadow = "0px 4px 6px rgba(0,0,0,0.1)";
+            popup.style.display = "none";
+            popup.style.padding = "10px";
+            popup.style.borderRadius = "8px";
+            popup.innerHTML = `
+                <button id="closePopup" style="position: absolute; top: 10px; right: 10px; background: red; color: white; border: none; border-radius: 5px; cursor: pointer;">X</button>
+                <img src="https://abbysyz.github.io/friendlyreportingui.github.io/assets/images/trend.png" alt="Popup Image" style="max-width: 100%; height: auto;">
+            `;
+            this.shadowRoot.appendChild(popup);
+    
+            this.shadowRoot.querySelector("#closePopup").addEventListener("click", () => {
+                popup.style.display = "none";
+            });
+        }
+    
+        this.shadowRoot.querySelectorAll(".trend-btn").forEach(button => {
+            button.addEventListener("click", () => {
+                this.shadowRoot.querySelector("#imagePopup").style.display = "block";
+            });
+        });
+    }    
+
+
     
 }
 customElements.define("insights-widget", InsightsWidget);
