@@ -5,25 +5,18 @@ class InsightsWidget extends HTMLElement {
         this.insightsData = [];
         this.feedbackCounts = {};
         this.pageTitle = '';
+        this.baseURL = "https://abbysyz.github.io/friendlyreportingui.github.io/assets";
+
+        this.isDevelopment = false;
+        this.apiEndpoint = this.isDevelopment 
+            ? "https://0.0.0.0:8000/api/v1/active_insights"
+            : "https://microdelivery-pipeline-lenny.lithium.me.sap.corp/api/v1/active_insights";
     }
 
     connectedCallback() {
         this.captureTitleFromParent();
         this.render();
-        // this.fetchFeedbackData();
         this.setupNavigation();
-
-        // this.style.overflow = "auto";
-        // this.style.height = "100%";
-        // this.style.display = "block";
-        // setTimeout(() => {
-        //     let parent = this.parentElement;
-        //     while (parent) {
-        //         parent.style.overflow = "auto";
-        //         parent.style.maxHeight = "100vh"; // Ensure scrolling is possible
-        //         parent = parent.parentElement;
-        //     }
-        // }, 100);
     }
 
     captureTitleFromParent() {
@@ -203,7 +196,7 @@ class InsightsWidget extends HTMLElement {
                     text-align: center;
                     padding: 12px;
                     position: fixed;
-                    top: 20px;
+                    top: 50%;
                     left: 50%;
                     transform: translateX(-50%);
                     border-radius: 5px;
@@ -267,7 +260,7 @@ class InsightsWidget extends HTMLElement {
             <nav class="sidebar">
                 <input id="searchInput" type="text" placeholder="Search..." onkeyup="this.getRootNode().host.searchTable()">
                 <div data-page="insights">
-                    <img src="https://abbysyz.github.io/friendlyreportingui.github.io/assets/icons/lightbulb.svg" class="icon">
+                    <img src="${this.baseURL}/icons/lightbulb.svg" class="icon">
                     <span>All Insights</span>
                 </div>
             </nav>
@@ -314,10 +307,8 @@ class InsightsWidget extends HTMLElement {
     }
 
     async fetchData() {
-        const apiEndpoint = "https://microdelivery-pipeline-lenny.lithium.me.sap.corp/api/v1/active_insights/insights";
-        // const apiEndpoint = "https://0.0.0.0:8000/api/v1/active_insights/insights";
         try {
-            const response = await fetch(apiEndpoint);
+            const response = await fetch(`${this.apiEndpoint}/insights`);
             const data = await response.json();
             this.insightsData = data;
             this.fetchFeedbackData();
@@ -327,11 +318,8 @@ class InsightsWidget extends HTMLElement {
     }
 
     async fetchFeedbackData() {
-        const apiEndpoint = "https://microdelivery-pipeline-lenny.lithium.me.sap.corp/api/v1/active_insights/feedbacks";
-        // const apiEndpoint = "https://0.0.0.0:8000/api/v1/active_insights/feedbacks";
-
         try {
-            const response = await fetch(apiEndpoint);
+            const response = await fetch(`${this.apiEndpoint}/feedbacks`);
             const feedbackData = await response.json();
 
             this.feedbackCounts = feedbackData.reduce((acc, feedback) => {
@@ -392,20 +380,20 @@ class InsightsWidget extends HTMLElement {
                         </p>
                         ${containsTrend ? 
                             `<div class="tooltip trend-btn">
-                                <img src="https://abbysyz.github.io/friendlyreportingui.github.io/assets/icons/trend.svg" alt="Icon" class="icon" style="margin: 8px">
+                                <img src="${this.baseURL}/icons/trend.svg" alt="Icon" class="icon" style="margin: 8px">
                                 <span class="tooltiptext">Coming soon</span>
                             </div>` : ''}
                         <div style="text-align:right;">
                             <div class="tooltip like-btn" data-insight-id="${insight.id}" data-feedback="like">
-                                <img src="https://abbysyz.github.io/friendlyreportingui.github.io/assets/icons/like_lineal.svg" alt="Icon" class="icon" style="margin: 8px; ">
+                                <img src="${this.baseURL}/icons/like_lineal.svg" alt="Icon" class="icon" style="margin: 8px; ">
                                 <span class="tooltiptext">Like</span> <span class="like-count" style="font-size: 14px;">${feedback.likes}</span>
                             </div>
                             <div class="tooltip dislike-btn" data-insight-id="${insight.id}" data-feedback="dislike">
-                                <img src="https://abbysyz.github.io/friendlyreportingui.github.io/assets/icons/dislike_lineal.svg" alt="Icon" class="icon" style="margin: 8px">
+                                <img src="${this.baseURL}/icons/dislike_lineal.svg" alt="Icon" class="icon" style="margin: 8px">
                                 <span class="tooltiptext">Dislike</span> <span class="dislike-count" style="font-size: 14px;">${feedback.dislikes}</span>
                             </div>
                             <div class="tooltip comment-btn" data-insight-id="${insight.id}">
-                                <img src="https://abbysyz.github.io/friendlyreportingui.github.io/assets/icons/notification.svg" alt="Icon" class="icon" style="margin: 8px">
+                                <img src="${this.baseURL}/icons/notification.svg" alt="Icon" class="icon" style="margin: 8px">
                                 <span class="tooltiptext">Add comments</span>
                             </div>
                         </div>
@@ -442,7 +430,7 @@ class InsightsWidget extends HTMLElement {
     toggleFavourite(index, button) {
         const icon = button.querySelector("img");
         this.insightsData[index].favorite = !this.insightsData[index].favorite;
-        icon.src = `https://abbysyz.github.io/friendlyreportingui.github.io/assets/icons/${this.insightsData[index].favorite ? 'favorite' : 'unfavorite'}.svg`;
+        icon.src = `${this.baseURL}/icons/${this.insightsData[index].favorite ? 'favorite' : 'unfavorite'}.svg`;
     }
 
     searchTable() {
@@ -486,10 +474,10 @@ class InsightsWidget extends HTMLElement {
 
             // Update UI with filled icons and counts
             if (icon && countSpan) {
-                icon.src = `https://abbysyz.github.io/friendlyreportingui.github.io/assets/icons/${isLike ? 'like_filled' : 'dislike_filled'}.svg`;
+                icon.src = `${this.baseURL}/icons/${isLike ? 'like_filled' : 'dislike_filled'}.svg`;
 
                 if (oppositeIcon) {
-                    oppositeIcon.src = `https://abbysyz.github.io/friendlyreportingui.github.io/assets/icons/${isLike ? 'dislike_lineal' : 'like_lineal'}.svg`;
+                    oppositeIcon.src = `${this.baseURL}/icons/${isLike ? 'dislike_lineal' : 'like_lineal'}.svg`;
                 }
 
                 const currentCount = parseInt(countSpan.textContent, 10) || 0;
@@ -497,8 +485,7 @@ class InsightsWidget extends HTMLElement {
             } 
 
             try {
-                const response = await fetch("https://microdelivery-pipeline-lenny.lithium.me.sap.corp/api/v1/active_insights/feedbacks", {
-                // const response = await fetch("https://0.0.0.0:8000/api/v1/active_insights/feedbacks", {
+                const response = await fetch(`${this.apiEndpoint}/feedbacks`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"
@@ -572,7 +559,6 @@ class InsightsWidget extends HTMLElement {
         const toast = this.shadowRoot.getElementById("toast");
         toast.textContent = message;
         toast.style.color = type === "error" ? "#f44336" : "#27272F"; //red or default dark
-        // toast.style.display = "block";
         toast.classList.add("show");
     
         setTimeout(() => {
@@ -595,7 +581,7 @@ class InsightsWidget extends HTMLElement {
             popup.style.borderRadius = "8px";
             // popup.innerHTML = `
             //     <button id="closePopup" style="position: absolute; top: 10px; right: 10px; background: red; color: white; border: none; border-radius: 5px; cursor: pointer;">X</button>
-            //     <img src="https://abbysyz.github.io/friendlyreportingui.github.io/assets/images/trend.png" alt="Popup Image" style="max-width: 100%; height: auto;">
+            //     <img src="${this.baseURL}/images/trend.png" alt="Popup Image" style="max-width: 100%; height: auto;">
             // `;
             this.shadowRoot.appendChild(popup);
     
