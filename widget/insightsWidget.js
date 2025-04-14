@@ -2,6 +2,7 @@ class InsightsWidget extends HTMLElement {
     constructor() {
         super();
         this.attachShadow({ mode: "open" });
+        this.username ='';
         this.insightsData = [];
         this.feedbackCounts = {};
         this.pageTitle = '';
@@ -15,6 +16,7 @@ class InsightsWidget extends HTMLElement {
 
     connectedCallback() {
         this.captureTitleFromParent();
+        this,captureUsernameFromParent();
         this.render();
         this.setupNavigation();
     }
@@ -26,6 +28,16 @@ class InsightsWidget extends HTMLElement {
             console.log('Captured Title from Parent:', this.pageTitle);
         } else {
             console.log('Title element not found in parent.');
+        }
+    }
+
+    captureUsernameFromParent() {
+        const usernameElement = document.querySelector('.sapHcsShellUserMenuName');
+        if (usernameElement) {
+            this.username = usernameElement.textContent.trim();
+            console.log('Captured Username from Parent:', this.username);
+        } else {
+            console.log('Usrname element not found in parent.');
         }
     }
 
@@ -265,23 +277,22 @@ class InsightsWidget extends HTMLElement {
                 </div>
             </nav>
 
-            
-                <div class="main-content active" id="insights">
-                    <h1>All Insights</h1>
-                    <div id="toast" class="toast">Feedback sent successfully!</div>
-                    <table id="insightsTable" class="table-container">
-                        <tbody></tbody>
-                    </table>
+            <div class="main-content active" id="insights">
+                <h1>All Insights</h1>
+                <div id="toast" class="toast">Feedback sent successfully!</div>
+                <table id="insightsTable" class="table-container">
+                    <tbody></tbody>
+                </table>
 
-                    <div id="commentModal" class="modal" style="flex-direction: column;">
-                        <h3>Add Comments</h3>
-                        <textarea class="comment-input"></textarea>
-                        <div class="button-container">
-                            <button class="cancel-btn" style="height: 30px; width: 100px; border-radius: 5px;">Cancel</button>
-                            <button class="send-btn" style="height: 30px; width: 100px; border-radius: 5px;">Send</button>
-                        </div>
+                <div id="commentModal" class="modal" style="flex-direction: column;">
+                    <h3>Add Comments</h3>
+                    <textarea class="comment-input"></textarea>
+                    <div class="button-container">
+                        <button class="cancel-btn" style="height: 30px; width: 100px; border-radius: 5px;">Cancel</button>
+                        <button class="send-btn" style="height: 30px; width: 100px; border-radius: 5px;">Send</button>
                     </div>
                 </div>
+            </div>
         `;
 
         this.setupNavigation();
@@ -596,8 +607,6 @@ class InsightsWidget extends HTMLElement {
             });
         });
     }    
-
-
     
 }
 customElements.define("insights-widget", InsightsWidget);
