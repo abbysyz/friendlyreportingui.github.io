@@ -16,10 +16,7 @@ class InsightsWidget extends HTMLElement {
 
     connectedCallback() {
         this.captureTitleFromParent();
-        // this.captureUsernameFromParent();
-        setTimeout(() => {
-            this.captureUsernameFromParent();
-        }, 500);
+        this.requestUsernameFromSAC();
         this.render();
         this.setupNavigation();
     }
@@ -34,14 +31,30 @@ class InsightsWidget extends HTMLElement {
         }
     }
 
-    captureUsernameFromParent() {
-        const usernameElement = document.querySelector('.sapHcsShellUserMenuName');
-        if (usernameElement) {
-            this.username = usernameElement.textContent.trim();
-            console.log('Captured Username from Parent:', this.username);
-        } else {
-            console.log('Usrname element not found in parent.');
-        }
+    requestUsernameFromSAC() {
+        // Fire a custom event to ask SAC (if supported) for user info
+        this.dispatchEvent(
+            new CustomEvent("onUserInfoRequest", {
+                detail: {
+                    callback: (userInfo) => {
+                        console.log('Received userInfo:', userInfo);
+                        if (userInfo && userInfo.fullName) {
+                            this.username = userInfo.fullName;
+                        } else if (userInfo && userInfo.id) {
+                            this.username = userInfo.id;
+                        } else {
+                            this.username = 'Unknown User';
+                        }
+
+                        console.log('Captured Username:', this.username);
+                        // Now you can render or use the username as needed
+                    }
+                },
+                bubbles: true,
+                composed: true
+            })
+        );
+    }
     }
 
     render() {
