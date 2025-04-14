@@ -55,7 +55,6 @@ class InsightsWidget extends HTMLElement {
             })
         );
     }
-    }
 
     render() {
         this.shadowRoot.innerHTML = `
