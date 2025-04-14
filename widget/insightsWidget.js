@@ -32,6 +32,8 @@ class InsightsWidget extends HTMLElement {
     }
 
     requestUsernameFromSAC() {
+        console.log("11111")
+
         // Fire a custom event to ask SAC (if supported) for user info
         this.dispatchEvent(
             new CustomEvent("onUserInfoRequest", {
