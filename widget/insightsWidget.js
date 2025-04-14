@@ -16,7 +16,10 @@ class InsightsWidget extends HTMLElement {
 
     connectedCallback() {
         this.captureTitleFromParent();
-        this.captureUsernameFromParent();
+        // this.captureUsernameFromParent();
+        setTimeout(() => {
+            this.captureUsernameFromParent();
+        }, 500);
         this.render();
         this.setupNavigation();
     }
