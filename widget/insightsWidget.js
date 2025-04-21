@@ -16,7 +16,7 @@ class InsightsWidget extends HTMLElement {
 
     connectedCallback() {
         this.captureTitleFromParent();
-        this.requestUsernameFromSAC();
+        // this.requestUsernameFromSAC();
         this.render();
         this.setupNavigation();
     }
