@@ -334,7 +334,7 @@ class InsightsWidget extends HTMLElement {
 
     async fetchData() {
         try {
-            const response = await fetch(`${this.apiEndpoint}/insights/tasks`);
+            const response = await fetch(`${this.apiEndpoint}/tasks`);
             const data = await response.json();
             this.insightsData = data;
             this.fetchFeedbackData();
