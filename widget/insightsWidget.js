@@ -348,18 +348,35 @@ class InsightsWidget extends HTMLElement {
             const response = await fetch(`${this.apiEndpoint}/feedbacks`);
             const feedbackData = await response.json();
 
+            if (!Array.isArray(feedbackData) || feedbackData.length === 0) {
+                console.warn("No feedback data found or invalid format.");
+                this.feedbackCounts = {};
+                this.insights.forEach((insight) => {
+                    this.feedbackCounts[insight.id] = { likes: 0, dislikes: 0 };
+                })
+                this.populateTable();
+                return;
+            }
+
             this.feedbackCounts = feedbackData.reduce((acc, feedback) => {
-                const { insight_id, is_like } = feedback;
-                if (!acc[insight_id]) {
-                    acc[insight_id] = { likes: 0, dislikes: 0 };
+                const { id, is_like } = feedback;
+                if (!acc[id]) {
+                    acc[id] = { likes: 0, dislikes: 0 };
                 }
                 if (is_like) {
-                    acc[insight_id].likes++;
+                    acc[id].likes++;
                 } else {
-                    acc[insight_id].dislikes++;
+                    acc[id].dislikes++;
                 }
                 return acc;
             }, {});
+
+            // Ensure all insights are included even if missing feedback
+            this.insights.forEach((insight) => {
+                if (!this.feedbackCounts[insight.id]) {
+                    this.feedbackCounts[insight.id] = { likes: 0, dislikes: 0 };
+                }
+            });
             this.populateTable();
         } catch (error) {
             console.error("Error fetching feedback data:", error);
