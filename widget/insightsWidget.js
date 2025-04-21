@@ -2,7 +2,7 @@ class InsightsWidget extends HTMLElement {
     constructor() {
         super();
         this.attachShadow({ mode: "open" });
-        this.username ='';
+        // this.username ='';
         this.insightsData = [];
         this.feedbackCounts = {};
         this.pageTitle = '';
@@ -11,7 +11,7 @@ class InsightsWidget extends HTMLElement {
         this.isDevelopment = false;
         this.apiEndpoint = this.isDevelopment 
             ? "https://0.0.0.0:8000/api/v1/active_insights"
-            : "https://microdelivery-pipeline-lenny.lithium.me.sap.corp/api/v1/active_insights";
+            : "https://microdelivery-pipeline-lenny.helium.me.sap.corp/api/v1/active_insights";
     }
 
     connectedCallback() {
@@ -31,32 +31,30 @@ class InsightsWidget extends HTMLElement {
         }
     }
 
-    requestUsernameFromSAC() {
-        console.log("11111")
+    // requestUsernameFromSAC() {
+    //     // Fire a custom event to ask SAC (if supported) for user info
+    //     this.dispatchEvent(
+    //         new CustomEvent("onUserInfoRequest", {
+    //             detail: {
+    //                 callback: (userInfo) => {
+    //                     console.log('Received userInfo:', userInfo);
+    //                     if (userInfo && userInfo.fullName) {
+    //                         this.username = userInfo.fullName;
+    //                     } else if (userInfo && userInfo.id) {
+    //                         this.username = userInfo.id;
+    //                     } else {
+    //                         this.username = 'Unknown User';
+    //                     }
 
-        // Fire a custom event to ask SAC (if supported) for user info
-        this.dispatchEvent(
-            new CustomEvent("onUserInfoRequest", {
-                detail: {
-                    callback: (userInfo) => {
-                        console.log('Received userInfo:', userInfo);
-                        if (userInfo && userInfo.fullName) {
-                            this.username = userInfo.fullName;
-                        } else if (userInfo && userInfo.id) {
-                            this.username = userInfo.id;
-                        } else {
-                            this.username = 'Unknown User';
-                        }
-
-                        console.log('Captured Username:', this.username);
-                        // Now you can render or use the username as needed
-                    }
-                },
-                bubbles: true,
-                composed: true
-            })
-        );
-    }
+    //                     console.log('Captured Username:', this.username);
+    //                     // Now you can render or use the username as needed
+    //                 }
+    //             },
+    //             bubbles: true,
+    //             composed: true
+    //         })
+    //     );
+    // }
 
     render() {
         this.shadowRoot.innerHTML = `
@@ -336,7 +334,7 @@ class InsightsWidget extends HTMLElement {
 
     async fetchData() {
         try {
-            const response = await fetch(`${this.apiEndpoint}/insights`);
+            const response = await fetch(`${this.apiEndpoint}/insights/tasks`);
             const data = await response.json();
             this.insightsData = data;
             this.fetchFeedbackData();
@@ -379,20 +377,25 @@ class InsightsWidget extends HTMLElement {
         const titleFirstTwoWords = getFirstTwoWords(this.pageTitle);
         
         const filteredInsights = this.insightsData.filter(insight => 
-            getFirstTwoWords(insight.reporting_platform_name) === titleFirstTwoWords || 
-            !this.insightsData.some(i => getFirstTwoWords(i.reporting_platform_name) === titleFirstTwoWords)
+            insight.status === "completed" &&
+            getFirstTwoWords(insight.story_name || '') === titleFirstTwoWords
         );
+
+        // If nothing matches, fall back to all "completed"
+        const insightsToRender = filteredInsights.length > 0
+        ? filteredInsights
+        : this.insightsData.filter(insight => insight.status === "completed");
     
-        filteredInsights.forEach((insight) => {
-            let parsedContent;
+        insightsToRender.forEach((insight) => {
+            let parsedResult;
             try {
-                parsedContent = JSON.parse(insight.content);
+                parsedResult = JSON.parse(insight.result);
             } catch (e) {
-                console.error("Failed to parse content JSON:", insight.content, e);
+                console.error("Failed to parse result JSON:", insight.result, e);
                 return;
             }
     
-            const { answer, key_info, explanation } = parsedContent;
+            const { answer, key_info, explanation } = parsedResult;
             const row = document.createElement("tr");
             row.setAttribute("data-insight-id", insight.id);
             const feedback = this.feedbackCounts[insight.id] || { likes: 0, dislikes: 0 };
