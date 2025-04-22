@@ -8,7 +8,7 @@ class InsightsWidget extends HTMLElement {
         this.pageTitle = '';
         this.baseURL = "https://abbysyz.github.io/friendlyreportingui.github.io/assets";
 
-        this.isDevelopment = true;
+        this.isDevelopment = false;
         this.apiEndpoint = this.isDevelopment 
             ? "https://0.0.0.0:8000/api/v1/active_insights"
             : "https://microdelivery-pipeline-lenny.helium.me.sap.corp/api/v1/active_insights";
