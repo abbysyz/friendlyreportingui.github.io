@@ -452,7 +452,7 @@ class InsightsWidget extends HTMLElement {
         });
         this.setupAccordions();
         this.setupFeedbackButtons();
-        this.setupImagePopup();
+        // this.setupImagePopup();
     }
 
     setupAccordions() {
