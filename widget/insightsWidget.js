@@ -8,7 +8,7 @@ class InsightsWidget extends HTMLElement {
         this.pageTitle = '';
         this.baseURL = "https://abbysyz.github.io/friendlyreportingui.github.io/assets";
 
-        this.isDevelopment = false;
+        this.isDevelopment = true;
         this.apiEndpoint = this.isDevelopment 
             ? "https://0.0.0.0:8000/api/v1/active_insights"
             : "https://microdelivery-pipeline-lenny.helium.me.sap.corp/api/v1/active_insights";
@@ -371,12 +371,12 @@ class InsightsWidget extends HTMLElement {
                 return acc;
             }, {});
 
-            // Ensure all insights are included even if missing feedback
-            this.insights.forEach((insight) => {
-                if (!this.feedbackCounts[insight.id]) {
-                    this.feedbackCounts[insight.id] = { likes: 0, dislikes: 0 };
-                }
-            });
+            // // Ensure all insights are included even if missing feedback
+            // this.insights.forEach((insight) => {
+            //     if (!this.feedbackCounts[insight.id]) {
+            //         this.feedbackCounts[insight.id] = { likes: 0, dislikes: 0 };
+            //     }
+            // });
             this.populateTable();
         } catch (error) {
             console.error("Error fetching feedback data:", error);
