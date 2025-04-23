@@ -352,7 +352,7 @@ class InsightsWidget extends HTMLElement {
                 console.warn("No feedback data found or invalid format.");
                 this.feedbackCounts = {};
                 this.insights.forEach((insight) => {
-                    this.feedbackCounts[insight.id] = { likes: 0, dislikes: 0 };
+                    this.feedbackCounts[insight.insight_task_id] = { likes: 0, dislikes: 0 };
                 })
                 this.populateTable();
                 return;
@@ -501,10 +501,10 @@ class InsightsWidget extends HTMLElement {
         const sendButton = modal?.querySelector(".send-btn");
         const commentInput = modal?.querySelector(".comment-input");
     
-        let commentInsightId = "";
+        let commentInsightTaskId = "";
 
-        const sendFeedback = async (insightId, comment, isLike) => {
-            const insightRow = this.shadowRoot.querySelector(`tr[data-insight-id='${insightId}']`);
+        const sendFeedback = async (insightTaskId, comment, isLike) => {
+            const insightRow = this.shadowRoot.querySelector(`tr[data-insight-id='${insightTaskId}']`);
             // Select the like/dislike button and count elements
             const iconSelector = isLike ? '.like-btn img' : '.dislike-btn img';
             const countSelector = isLike ? '.like-count' : '.dislike-count';
@@ -539,7 +539,7 @@ class InsightsWidget extends HTMLElement {
                         "Content-Type": "application/json"
                     },
                     body: JSON.stringify({
-                        insight_id: insightId,
+                        insight_task_id: insightTaskId,
                         feedback: comment,
                         is_like: isLike
                     })
@@ -547,7 +547,7 @@ class InsightsWidget extends HTMLElement {
                 if (!response.ok) {
                     throw new Error("Failed to send feedback");
                 }
-                console.log(`Feedback sent successfully:`, insightId, comment, isLike);
+                console.log(`Feedback sent successfully:`, insightTaskId, comment, isLike);
                 this.showToast("Thank you for your feedback!", "info");
             } catch (error) {
                 console.error("Error sending feedback:", error);
@@ -556,22 +556,22 @@ class InsightsWidget extends HTMLElement {
 
         likeButtons.forEach((btn) => {
             btn.addEventListener("click", async () => {
-                const insightId = btn.getAttribute("data-insight-id");
-                sendFeedback(insightId, '', true);
+                const insightTaskId = btn.getAttribute("data-insight-id");
+                sendFeedback(insightTaskId, '', true);
             });
         });
     
         dislikeButtons.forEach((btn) => {
             btn.addEventListener("click", async () => {                
-                const insightId = btn.getAttribute("data-insight-id");
-                sendFeedback(insightId, '', false);
+                const insightTaskId = btn.getAttribute("data-insight-id");
+                sendFeedback(insightTaskId, '', false);
             });
         });
     
         commentButtons.forEach((btn) => {
             btn.addEventListener("click", () => {
-                commentInsightId = btn.getAttribute("data-insight-id");
-                console.log(commentInsightId)
+                commentInsightTaskId = btn.getAttribute("data-insight-id");
+                console.log(commentInsightTaskId)
                 commentInput.value = ""; // Clear previous input
                 commentInput.classList.remove("error"); // Remove error class if any
                 commentInput.placeholder = "Type your feedback here..."; // Reset placeholder
@@ -585,22 +585,22 @@ class InsightsWidget extends HTMLElement {
 
         sendButton.addEventListener("click", async () => {
             // Check if the feedback text is empty
-            if (!commentInsightId || !commentInput.value.trim()) {
+            if (!commentInsightTaskId || !commentInput.value.trim()) {
                 commentInput.classList.add("error");
                 commentInput.placeholder = "Please type your feedback...";
                 commentInput.focus();
                 return;
             }
             commentInput.classList.remove("error");
-            sendFeedback(commentInsightId, commentInput.value, null);
+            sendFeedback(commentInsightTaskId, commentInput.value, null);
             modal.style.display = "none";
         });
     }
 
-    toggleCommentModal(show, insightId = null) {
+    toggleCommentModal(show, insightTaskId = null) {
         const modal = this.shadowRoot.querySelector("#commentModal");
         modal.classList.toggle("active", show);
-        if (show) this.currentInsightId = insightId;
+        if (show) this.currentInsightTaskId = insightTaskId;
     }
 
     showToast(message, type = "info") {
