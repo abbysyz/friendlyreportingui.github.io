@@ -10,7 +10,7 @@ class InsightsWidget extends HTMLElement {
 
         this.isDevelopment = false;
         this.apiEndpoint = this.isDevelopment 
-            ? "https://0.0.0.0:8000/api/v1/active_insights"
+            ? "http://localhost::8000/api/v1/active_insights"
             : "https://microdelivery-pipeline-lenny.helium.me.sap.corp/api/v1/active_insights";
     }
 
@@ -340,13 +340,7 @@ class InsightsWidget extends HTMLElement {
                 ...task,
                 insight_task_id: task.id
             }));
-
-            // Fetch feedback before rendering
-            await this.fetchFeedbackData();
-
-            // Now you can render
-            // this.render();
-        //   this.fetchFeedbackData();
+          this.fetchFeedbackData();
         } catch (error) {
             console.error("Error fetching insights data:", error);
         }
