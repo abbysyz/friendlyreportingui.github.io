@@ -539,9 +539,10 @@ class InsightsWidget extends HTMLElement {
                         "Content-Type": "application/json"
                     },
                     body: JSON.stringify({
-                        insight_task_id: insightTaskId,
-                        feedback: comment,
-                        is_like: isLike
+                        "insight_task_id": insightTaskId,
+                        "comment": comment,
+                        "is_like": isLike,
+                        "user_id":""
                     })
                 });
                 if (!response.ok) {
@@ -551,20 +552,22 @@ class InsightsWidget extends HTMLElement {
                 this.showToast("Thank you for your feedback!", "info");
             } catch (error) {
                 console.error("Error sending feedback:", error);
+                console.log(`Error sent successfully:`, insightTaskId, comment, isLike);
+
             }
         };
 
         likeButtons.forEach((btn) => {
             btn.addEventListener("click", async () => {
                 const insightTaskId = btn.getAttribute("data-insight-id");
-                sendFeedback(insightTaskId, '', true);
+                sendFeedback(insightTaskId, '', true, "");
             });
         });
     
         dislikeButtons.forEach((btn) => {
             btn.addEventListener("click", async () => {                
                 const insightTaskId = btn.getAttribute("data-insight-id");
-                sendFeedback(insightTaskId, '', false);
+                sendFeedback(insightTaskId, '', false, "");
             });
         });
     
@@ -592,7 +595,7 @@ class InsightsWidget extends HTMLElement {
                 return;
             }
             commentInput.classList.remove("error");
-            sendFeedback(commentInsightTaskId, commentInput.value, null);
+            sendFeedback(commentInsightTaskId, commentInput.value, null, "");
             modal.style.display = "none";
         });
     }
