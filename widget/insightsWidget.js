@@ -336,8 +336,11 @@ class InsightsWidget extends HTMLElement {
         try {
             const response = await fetch(`${this.apiEndpoint}/tasks`);
             const data = await response.json();
-            this.insightsData = data;
-            this.fetchFeedbackData();
+            this.insightsData = data.map(task => ({
+                ...task,
+                insight_task_id: task.id
+            }));
+          this.fetchFeedbackData();
         } catch (error) {
             console.error("Error fetching insights data:", error);
         }
@@ -354,6 +357,7 @@ class InsightsWidget extends HTMLElement {
                 this.insights.forEach((insight) => {
                     this.feedbackCounts[insight.insight_task_id] = { likes: 0, dislikes: 0 };
                 })
+                console.log(this.feedbackCounts)
                 this.populateTable();
                 return;
             }
@@ -373,8 +377,8 @@ class InsightsWidget extends HTMLElement {
 
             // // Ensure all insights are included even if missing feedback
             // this.insights.forEach((insight) => {
-            //     if (!this.feedbackCounts[insight.id]) {
-            //         this.feedbackCounts[insight.id] = { likes: 0, dislikes: 0 };
+            //     if (!this.feedbackCounts[insight.insight_task_id]) {
+            //         this.feedbackCounts[insight.insight_task_id] = { likes: 0, dislikes: 0 };
             //     }
             // });
             this.populateTable();
@@ -414,8 +418,8 @@ class InsightsWidget extends HTMLElement {
     
             const { answer, key_info, explanation } = parsedResult;
             const row = document.createElement("tr");
-            row.setAttribute("data-insight-id", insight.id);
-            const feedback = this.feedbackCounts[insight.id] || { likes: 0, dislikes: 0 };
+            row.setAttribute("data-insight-task-id", insight.insight_task_id);
+            const feedback = this.feedbackCounts[insight.insight_task_id] || { likes: 0, dislikes: 0 };
             const containsTrend = answer.toLowerCase().includes("trend") || key_info.toLowerCase().includes("trend");
 
             row.innerHTML = `
@@ -432,15 +436,15 @@ class InsightsWidget extends HTMLElement {
                                 <span class="tooltiptext">Coming soon</span>
                             </div>` : ''}
                         <div style="text-align:right;">
-                            <div class="tooltip like-btn" data-insight-id="${insight.id}" data-feedback="like">
+                            <div class="tooltip like-btn" data-insight-task-id="${insight.insight_task_id}" data-feedback="like">
                                 <img src="${this.baseURL}/icons/like_lineal.svg" alt="Icon" class="icon" style="margin: 8px; ">
                                 <span class="tooltiptext">Like</span> <span class="like-count" style="font-size: 14px;">${feedback.likes}</span>
                             </div>
-                            <div class="tooltip dislike-btn" data-insight-id="${insight.id}" data-feedback="dislike">
+                            <div class="tooltip dislike-btn" data-insight-task-id="${insight.insight_task_id}" data-feedback="dislike">
                                 <img src="${this.baseURL}/icons/dislike_lineal.svg" alt="Icon" class="icon" style="margin: 8px">
                                 <span class="tooltiptext">Dislike</span> <span class="dislike-count" style="font-size: 14px;">${feedback.dislikes}</span>
                             </div>
-                            <div class="tooltip comment-btn" data-insight-id="${insight.id}">
+                            <div class="tooltip comment-btn" data-insight-task-id="${insight.insight_task_id}">
                                 <img src="${this.baseURL}/icons/notification.svg" alt="Icon" class="icon" style="margin: 8px">
                                 <span class="tooltiptext">Add comments</span>
                             </div>
@@ -504,7 +508,7 @@ class InsightsWidget extends HTMLElement {
         let commentInsightTaskId = "";
 
         const sendFeedback = async (insightTaskId, comment, isLike) => {
-            const insightRow = this.shadowRoot.querySelector(`tr[data-insight-id='${insightTaskId}']`);
+            const insightRow = this.shadowRoot.querySelector(`tr[data-insight-task-id='${insightTaskId}']`);
             // Select the like/dislike button and count elements
             const iconSelector = isLike ? '.like-btn img' : '.dislike-btn img';
             const countSelector = isLike ? '.like-count' : '.dislike-count';
@@ -559,21 +563,21 @@ class InsightsWidget extends HTMLElement {
 
         likeButtons.forEach((btn) => {
             btn.addEventListener("click", async () => {
-                const insightTaskId = btn.getAttribute("data-insight-id");
+                const insightTaskId = btn.getAttribute("data-insight-task-id");
                 sendFeedback(insightTaskId, '', true, "");
             });
         });
     
         dislikeButtons.forEach((btn) => {
             btn.addEventListener("click", async () => {                
-                const insightTaskId = btn.getAttribute("data-insight-id");
+                const insightTaskId = btn.getAttribute("data-insight-task-id");
                 sendFeedback(insightTaskId, '', false, "");
             });
         });
     
         commentButtons.forEach((btn) => {
             btn.addEventListener("click", () => {
-                commentInsightTaskId = btn.getAttribute("data-insight-id");
+                commentInsightTaskId = btn.getAttribute("data-insight-task-id");
                 console.log(commentInsightTaskId)
                 commentInput.value = ""; // Clear previous input
                 commentInput.classList.remove("error"); // Remove error class if any
