@@ -17,7 +17,7 @@ class InsightsWidget extends HTMLElement {
     connectedCallback() {
         this.captureTitleFromParent();
         // this.requestUsernameFromSAC();
-        this.fetchData();
+        this.render();
         this.setupNavigation();
     }
 
@@ -311,7 +311,7 @@ class InsightsWidget extends HTMLElement {
         `;
 
         this.setupNavigation();
-        // this.fetchData();
+        this.fetchData();
     }
 
     setupNavigation() {
@@ -345,7 +345,7 @@ class InsightsWidget extends HTMLElement {
             await this.fetchFeedbackData();
 
             // Now you can render
-            this.render();
+            // this.render();
         //   this.fetchFeedbackData();
         } catch (error) {
             console.error("Error fetching insights data:", error);
