@@ -10,7 +10,7 @@ class InsightsWidget extends HTMLElement {
 
         this.isDevelopment = false;
         this.apiEndpoint = this.isDevelopment 
-            ? "http://localhost::8000/api/v1/active_insights"
+            ? "http://localhost:8000/api/v1/active_insights"
             : "https://microdelivery-pipeline-lenny.helium.me.sap.corp/api/v1/active_insights";
     }
 
