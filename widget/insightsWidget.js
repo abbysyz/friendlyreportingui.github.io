@@ -363,24 +363,18 @@ class InsightsWidget extends HTMLElement {
             }
 
             this.feedbackCounts = feedbackData.reduce((acc, feedback) => {
-                const { id, is_like } = feedback;
-                if (!acc[id]) {
-                    acc[id] = { likes: 0, dislikes: 0 };
+                const { insight_task_id, is_like } = feedback;
+                if (!acc[insight_task_id]) {
+                    acc[insight_task_id] = { likes: 0, dislikes: 0 };
                 }
                 if (is_like) {
-                    acc[id].likes++;
+                    acc[insight_task_id].likes++;
                 } else {
-                    acc[id].dislikes++;
+                    acc[insight_task_id].dislikes++;
                 }
                 return acc;
             }, {});
 
-            // // Ensure all insights are included even if missing feedback
-            // this.insights.forEach((insight) => {
-            //     if (!this.feedbackCounts[insight.insight_task_id]) {
-            //         this.feedbackCounts[insight.insight_task_id] = { likes: 0, dislikes: 0 };
-            //     }
-            // });
             this.populateTable();
         } catch (error) {
             console.error("Error fetching feedback data:", error);
