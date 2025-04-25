@@ -1,0 +1,31 @@
+{
+    "name": "InsightsWidget_Dev",
+    "newInstancePrefix": "Insights_Widget",
+    "icon": "https://abbysyz.github.io/friendlyreportingui.github.io/widget/insights.png",
+    "id": "com.custom.insights",
+    "version": "1.0.0",
+    "description": "Active Insights Widget",
+    "vendor": "SAP Active Insights",
+    "webcomponents": [
+      {
+          "kind": "main",
+          "tag": "insights-widget",
+          "url": "https://abbysyz.github.io/friendlyreportingui.github.io/widget_dev/insightsWidget_dev.js?v=1",
+          "integrity": "",
+          "ignoreIntegrity": true
+      }
+  ],
+    "properties": {
+      
+    },
+    "methods": {
+      "refreshData": {
+        "description": "Fetches data from API and refreshes the insights table"
+      }
+    },
+    "events": {
+      "onInsightClick": {
+        "description": "Triggered when an insight is clicked"
+      }
+    }
+  }
