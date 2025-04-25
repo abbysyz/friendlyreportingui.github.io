@@ -10,7 +10,7 @@
       {
           "kind": "main",
           "tag": "insights-widget",
-          "url": "https://abbysyz.github.io/friendlyreportingui.github.io/widget_prod/insightsWidget.js?v=1",
+          "url": "https://abbysyz.github.io/friendlyreportingui.github.io/widget/insightsWidget.js?v=1",
           "integrity": "",
           "ignoreIntegrity": true
       }
