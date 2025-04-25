@@ -8,9 +8,9 @@ class InsightsWidget extends HTMLElement {
         this.pageTitle = '';
         this.baseURL = "https://abbysyz.github.io/friendlyreportingui.github.io/assets";
 
-        this.isDevelopment = false;
+        this.isDevelopment = true;
         this.apiEndpoint = this.isDevelopment 
-            ? "http://localhost:8000/api/v1/active_insights"
+            ? "https://localhost:63342/api/v1/active_insights"
             : "https://microdelivery-pipeline-lenny.helium.me.sap.corp/api/v1/active_insights";
     }
 
@@ -354,7 +354,7 @@ class InsightsWidget extends HTMLElement {
             if (!Array.isArray(feedbackData) || feedbackData.length === 0) {
                 console.warn("No feedback data found or invalid format.");
                 this.feedbackCounts = {};
-                this.insights.forEach((insight) => {
+                this.insightsData.forEach((insight) => {
                     this.feedbackCounts[insight.insight_task_id] = { likes: 0, dislikes: 0 };
                 })
                 console.log(this.feedbackCounts)
