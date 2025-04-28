@@ -10,7 +10,7 @@ class InsightsWidget extends HTMLElement {
 
         this.isDevelopment = false;
         this.apiEndpoint = this.isDevelopment 
-            ? "https://localhost:63342/api/v1/active_insights"
+            ? "http://127.0.0.1:8000/api/v1/active_insights"
             : "https://microdelivery-pipeline-lenny.helium.me.sap.corp/api/v1/active_insights";
     }
 
@@ -72,15 +72,15 @@ class InsightsWidget extends HTMLElement {
                     height: 80px;
                     // background-color: black;
                     color: #9EA0A7;
-                    padding: 10px 0;
+                    padding: 10px;
                     text-align: left;
                     position: fixed;
                     top: 0;
-                    left: 200px;
+                    left: 180;
                     z-index: 1000;
                 }
-                nav {
-                    width: 180px;
+                nav.sidebar {
+                    width: 160px;
                     background-color: #24242C;
                     color: #9EA0A7;
                     display: flex;
@@ -92,15 +92,21 @@ class InsightsWidget extends HTMLElement {
                     left: 0;
                     height: 100%;
                 }
-                nav div {
+
+                nav.sidebar div {
                     cursor: pointer;
-                    // margin: 10px 0;
                     padding: 15px;
                     display: flex;
                     align-items: center;
+                    color: #9EA0A7; /* default text color */
                 }
-                nav div:hover {
+
+                nav.sidebar div:hover {
                     background-color: #363640;
+                }
+
+                nav.sidebar div.active span {
+                    color: #E38100; /* highlight the text of the active item */
                 }
                 h1 {
                     color: #E38100
@@ -109,7 +115,7 @@ class InsightsWidget extends HTMLElement {
                     // padding: 10px;
                     color: white;
                     flex: 1;
-                    margin-left: 200px;
+                    margin-left: 160px;
                     display: none;
                 }
                 .main-content.active {
@@ -155,12 +161,12 @@ class InsightsWidget extends HTMLElement {
                 .table-container {
                     overflow-y: auto;
                     display: block;
-                    max-height: 70vh;
+                    max-height: 80vh;
                 }
                 table {
                     border-collapse: collapse;
                     position: absolute;
-                    top: 80px;
+                    // top: 80px;
                 }
                 tbody {
                     display: block;
@@ -177,12 +183,12 @@ class InsightsWidget extends HTMLElement {
                     background-color: #27272F;
                     color: #DCE3E9;
                     cursor: pointer;
-                    padding: 18px;
+                    padding: 12px;
                     width: 100%;
                     border: none;
                     text-align: left;
                     outline: none;
-                    font-size: 15px;
+                    font-size: 14px;
                     transition: 0.4s;
                     display: block;
                 }
@@ -223,7 +229,7 @@ class InsightsWidget extends HTMLElement {
                     text-align: center;
                     padding: 12px;
                     position: fixed;
-                    top: 50%;
+                    top: 30%;
                     left: 50%;
                     transform: translateX(-50%);
                     border-radius: 5px;
@@ -286,14 +292,12 @@ class InsightsWidget extends HTMLElement {
 
             <nav class="sidebar">
                 <input id="searchInput" type="text" placeholder="Search..." onkeyup="this.getRootNode().host.searchTable()">
-                <div data-page="insights">
-                    <img src="${this.baseURL}/icons/lightbulb.svg" class="icon">
+                <div data-page="insights">                    
                     <span>All Insights</span>
                 </div>
             </nav>
 
             <div class="main-content active" id="insights">
-                <h1>All Insights</h1>
                 <div id="toast" class="toast">Feedback sent successfully!</div>
                 <table id="insightsTable" class="table-container">
                     <tbody></tbody>
@@ -315,21 +319,30 @@ class InsightsWidget extends HTMLElement {
     }
 
     setupNavigation() {
-        const navItems = this.shadowRoot.querySelectorAll("nav div");
+        const navItems = this.shadowRoot.querySelectorAll("nav.sidebar div[data-page]");
         const pages = this.shadowRoot.querySelectorAll(".main-content");
 
         navItems.forEach((item) => {
             item.addEventListener("click", () => {
                 const pageId = item.getAttribute("data-page");
-                // Hide all pages
-                pages.forEach((page) => page.classList.remove("active"));
-                // Show the selected page
+
+                navItems.forEach(nav => nav.classList.remove("active"));
+                pages.forEach(page => page.classList.remove("active"));
+
+                item.classList.add("active");
+
                 const activePage = this.shadowRoot.querySelector(`#${pageId}`);
                 if (activePage) {
                     activePage.classList.add("active");
                 }
             });
         });
+
+        const defaultPage = this.shadowRoot.querySelector("nav.sidebar div[data-page='insights']");
+        if (defaultPage) {
+            defaultPage.classList.add("active");
+        }
+
     }
 
     async fetchData() {
@@ -357,7 +370,6 @@ class InsightsWidget extends HTMLElement {
                 this.insightsData.forEach((insight) => {
                     this.feedbackCounts[insight.insight_task_id] = { likes: 0, dislikes: 0 };
                 })
-                console.log(this.feedbackCounts)
                 this.populateTable();
                 return;
             }
@@ -420,27 +432,30 @@ class InsightsWidget extends HTMLElement {
                 <td>
                     <button class="accordion" style="font-size:16px; height: 65px">${answer}</button>
                     <div class="panel">
-                        <p style="padding: 10px; font-size:14px;">${explanation}</p>
-                        <p style="padding: 10px; font-size:14px;">
+                        <p style="font-size:14px;">${explanation}</p>
+                        <p style="font-size:14px;">
                             <span style="color: #E38100; font-weight: bold;">Details: </span>${key_info}
                         </p>
-                        ${containsTrend ? 
-                            `<div class="tooltip trend-btn">
-                                <img src="${this.baseURL}/icons/trend.svg" alt="Icon" class="icon" style="margin: 8px">
-                                <span class="tooltiptext">Coming soon</span>
-                            </div>` : ''}
-                        <div style="text-align:right;">
-                            <div class="tooltip like-btn" data-insight-task-id="${insight.insight_task_id}" data-feedback="like">
-                                <img src="${this.baseURL}/icons/like_lineal.svg" alt="Icon" class="icon" style="margin: 8px; ">
-                                <span class="tooltiptext">Like</span> <span class="like-count" style="font-size: 14px;">${feedback.likes}</span>
-                            </div>
-                            <div class="tooltip dislike-btn" data-insight-task-id="${insight.insight_task_id}" data-feedback="dislike">
-                                <img src="${this.baseURL}/icons/dislike_lineal.svg" alt="Icon" class="icon" style="margin: 8px">
-                                <span class="tooltiptext">Dislike</span> <span class="dislike-count" style="font-size: 14px;">${feedback.dislikes}</span>
-                            </div>
-                            <div class="tooltip comment-btn" data-insight-task-id="${insight.insight_task_id}">
-                                <img src="${this.baseURL}/icons/notification.svg" alt="Icon" class="icon" style="margin: 8px">
-                                <span class="tooltiptext">Add comments</span>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            ${containsTrend ? 
+                                `<div class="tooltip trend-btn" style="display: flex; align-items: center;">
+                                    <img src="${this.baseURL}/icons/trend.svg" alt="Icon" class="icon" style="margin: 8px">
+                                    <span class="tooltiptext">Coming soon</span>
+                                </div>` : '<div></div>'}
+
+                            <div style="display: flex; gap: 12px; align-items: center;">
+                                <div class="tooltip like-btn" data-insight-task-id="${insight.insight_task_id}" data-feedback="like">
+                                    <img src="${this.baseURL}/icons/like_lineal.svg" alt="Icon" class="icon" style="margin: 8px;">
+                                    <span class="tooltiptext">Like</span> <span class="like-count" style="font-size: 14px;">${feedback.likes}</span>
+                                </div>
+                                <div class="tooltip dislike-btn" data-insight-task-id="${insight.insight_task_id}" data-feedback="dislike">
+                                    <img src="${this.baseURL}/icons/dislike_lineal.svg" alt="Icon" class="icon" style="margin: 8px;">
+                                    <span class="tooltiptext">Dislike</span> <span class="dislike-count" style="font-size: 14px;">${feedback.dislikes}</span>
+                                </div>
+                                <div class="tooltip comment-btn" data-insight-task-id="${insight.insight_task_id}">
+                                    <img src="${this.baseURL}/icons/notification.svg" alt="Icon" class="icon" style="margin: 8px;">
+                                    <span class="tooltiptext">Add comments</span>
+                                </div>
                             </div>
                         </div>
                     </div>
