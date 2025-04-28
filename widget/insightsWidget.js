@@ -115,7 +115,7 @@ class InsightsWidget extends HTMLElement {
                     // padding: 10px;
                     color: white;
                     flex: 1;
-                    margin-left: 160px;
+                    margin-left: 180px;
                     display: none;
                 }
                 .main-content.active {
