@@ -647,4 +647,4 @@ class InsightsWidget extends HTMLElement {
     }    
     
 }
-customElements.define("insights-widget", InsightsWidget);
+customElements.define("insights-widget-dev", InsightsWidget);

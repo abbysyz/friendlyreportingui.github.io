@@ -1,7 +1,7 @@
 {
     "name": "InsightsWidget",
     "newInstancePrefix": "Insights_Widget",
-    "icon": "https://abbysyz.github.io/friendlyreportingui.github.io/widget/insights.png",
+    "icon": "https://abbysyz.github.io/friendlyreportingui.github.io/widget/prod.png",
     "id": "com.custom.insights",
     "version": "1.0.1",
     "description": "Active Insights Widget",
