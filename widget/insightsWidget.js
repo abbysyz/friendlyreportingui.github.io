@@ -434,7 +434,7 @@ class InsightsWidget extends HTMLElement {
                     <div class="panel">
                         <p style="font-size:14px;">${explanation}</p>
                         <p style="font-size:14px;">
-                            <span style="color: #E38100; font-weight: bold;">Details: </span>${key_info}
+                            <span style="color: #E38100;">Details: </span>${key_info}
                         </p>
                         <div style="display: flex; justify-content: space-between; align-items: center;">
                             ${containsTrend ? 
