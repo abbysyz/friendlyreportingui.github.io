@@ -98,7 +98,6 @@ class InsightsWidget extends HTMLElement {
                     align-items: center;
                     gap: 20px;
                 }
-
                 nav.topnav .nav-links div[data-page] {
                     cursor: pointer;
                     padding: 10px 15px;
@@ -106,20 +105,17 @@ class InsightsWidget extends HTMLElement {
                     font-weight: 500;
                     border-radius: 4px;
                 }
-
                 nav.topnav .nav-links div[data-page]:hover {
                     background-color: #363640;
                 }
-
                 nav.topnav .nav-links div[data-page].active span {
                     color: #E38100;
+                    font-weight: bold;
                 }
-
                 nav.topnav .nav-right {
                     display: flex;
                     align-items: center;
                 }
-
                 #searchInput {
                     width: 250px;
                     height: 26px;
