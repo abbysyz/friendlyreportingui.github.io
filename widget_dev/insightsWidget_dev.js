@@ -10,7 +10,7 @@ class InsightsWidget extends HTMLElement {
 
         this.isDevelopment = false;
         this.apiEndpoint = this.isDevelopment 
-            ? "https://localhost:63342/api/v1/active_insights"
+            ? "http://127.0.0.1:8000/api/v1/active_insights"
             : "https://microdelivery-pipeline-lenny.helium.me.sap.corp/api/v1/active_insights";
     }
 
@@ -72,48 +72,73 @@ class InsightsWidget extends HTMLElement {
                     height: 80px;
                     // background-color: black;
                     color: #9EA0A7;
-                    padding: 10px 0;
+                    padding: 10px;
                     text-align: left;
                     position: fixed;
                     top: 0;
-                    left: 200px;
+                    left: 180;
                     z-index: 1000;
                 }
-                nav {
-                    width: 180px;
-                    background-color: #24242C;
+                nav.topnav {
+                    width: 100%;
+                    background-color: #1D2225;
                     color: #9EA0A7;
                     display: flex;
-                    flex-direction: column;
-                    align-items: left;
-                    padding-top: 20px;
+                    justify-content: space-between;
+                    align-items: center;
+                    padding: 10px 20px;
                     position: fixed;
                     top: 0;
                     left: 0;
-                    height: 100%;
+                    height: 30px;
+                    z-index: 1000;
                 }
-                nav div {
+                nav.topnav .nav-links {
+                    display: flex;
+                    align-items: center;
+                    gap: 20px;
+                }
+
+                nav.topnav .nav-links div[data-page] {
                     cursor: pointer;
-                    // margin: 10px 0;
-                    padding: 15px;
+                    padding: 10px 15px;
+                    color: #9EA0A7;
+                    font-weight: 500;
+                    border-radius: 4px;
+                }
+
+                nav.topnav .nav-links div[data-page]:hover {
+                    background-color: #363640;
+                }
+
+                nav.topnav .nav-links div[data-page].active span {
+                    color: #E38100;
+                }
+
+                nav.topnav .nav-right {
                     display: flex;
                     align-items: center;
                 }
-                nav div:hover {
+
+                #searchInput {
+                    width: 250px;
+                    height: 26px;
+                    border: 2px solid #4F505E;
+                    border-radius: 20px;
+                    color: #DCE3E9;
+                    padding: 4px 12px;
                     background-color: #363640;
+                    margin-right: 40px;
                 }
+
+                /* Adjust main content position for topnav */
+                .main-content {
+                    margin-left: 0;
+                    margin-top: 70px;
+                }
+
                 h1 {
                     color: #E38100
-                }
-                .main-content {
-                    // padding: 10px;
-                    color: white;
-                    flex: 1;
-                    margin-left: 200px;
-                    display: none;
-                }
-                .main-content.active {
-                    display: block; /* Show active page */
                 }
                 .icon {
                     width: 20px;
@@ -152,52 +177,9 @@ class InsightsWidget extends HTMLElement {
                     visibility: visible;
                     opacity: 2;
                 }
-                .table-container {
-                    overflow-y: auto;
-                    display: block;
-                    max-height: 70vh;
-                }
-                table {
-                    border-collapse: collapse;
-                    position: absolute;
-                    top: 80px;
-                }
-                tbody {
-                    display: block;
-                    width: 100%;
-                }
-                th, td {
-                    text-align: left;
-                }
                 .scrollable-content {
                     max-height: calc(100vh - 80px); /* Adjust this value based on your header/footer height */
                     overflow-y: auto;
-                }
-                .accordion {
-                    background-color: #27272F;
-                    color: #DCE3E9;
-                    cursor: pointer;
-                    padding: 18px;
-                    width: 100%;
-                    border: none;
-                    text-align: left;
-                    outline: none;
-                    font-size: 15px;
-                    transition: 0.4s;
-                    display: block;
-                }
-                .accordion.active, .accordion:hover {
-                    background-color: #212125;
-                }
-                .accordion:after {
-                    content: "+";
-                    color: #DCE3E9;
-                    font-weight: bold;
-                    float: right;
-                    margin-left: 5px;
-                }
-                .accordion.active:after {
-                    content: "-";
                 }
                 .panel {
                     padding: 0 18px;
@@ -223,7 +205,7 @@ class InsightsWidget extends HTMLElement {
                     text-align: center;
                     padding: 12px;
                     position: fixed;
-                    top: 50%;
+                    top: 30%;
                     left: 50%;
                     transform: translateX(-50%);
                     border-radius: 5px;
@@ -282,22 +264,69 @@ class InsightsWidget extends HTMLElement {
                     justify-content: flex-end;
                 }
 
+                .tiles-container {
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 16px;
+                    padding: 20px;
+                    justify-content: flex-start;
+                }
+
+                .tile {
+                    background-color: #1D2225;
+                    color: #DCE3E9;
+                    border-radius: 8px;
+                    width: 300px;
+                    min-height: 180px;
+                    padding: 16px;
+                    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: space-between;
+                }
+
+                .tile-header {
+                    font-size: 16px;
+                    margin-bottom: 12px;
+                    cursor: pointer;
+                }
+
+                .tile-panel {
+                    display: block;
+                    font-size: 14px;
+                    margin-top: 12px;
+                    flex-grow: 1;
+                    color: #A39F9E;
+                    
+                }
+
+                .tile.active .tile-panel {
+                    display: block;
+                }
+
+                .tile-actions {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    margin-top: 12px;
+                }
+
             </style>
 
-            <nav class="sidebar">
-                <input id="searchInput" type="text" placeholder="Search..." onkeyup="this.getRootNode().host.searchTable()">
-                <div data-page="insights">
-                    <img src="${this.baseURL}/icons/lightbulb.svg" class="icon">
-                    <span>All Insights</span>
+            <nav class="topnav">
+                <div class="nav-links">
+                    <div data-page="insights" class="active">
+                        <span>All Insights</span>
+                    </div>
+                </div>
+                <div class="nav-right">
+                    <input id="searchInput" type="text" placeholder="Search..." onkeyup="this.getRootNode().host.searchFunction()">
                 </div>
             </nav>
 
             <div class="main-content active" id="insights">
-                <h1>All Insights</h1>
                 <div id="toast" class="toast">Feedback sent successfully!</div>
-                <table id="insightsTable" class="table-container">
-                    <tbody></tbody>
-                </table>
+                <div id="insightsTiles" class="tiles-container"></div>
 
                 <div id="commentModal" class="modal" style="flex-direction: column;">
                     <h3>Add Comments</h3>
@@ -315,21 +344,30 @@ class InsightsWidget extends HTMLElement {
     }
 
     setupNavigation() {
-        const navItems = this.shadowRoot.querySelectorAll("nav div");
+        const navItems = this.shadowRoot.querySelectorAll("nav.sidebar div[data-page]");
         const pages = this.shadowRoot.querySelectorAll(".main-content");
 
         navItems.forEach((item) => {
             item.addEventListener("click", () => {
                 const pageId = item.getAttribute("data-page");
-                // Hide all pages
-                pages.forEach((page) => page.classList.remove("active"));
-                // Show the selected page
+
+                navItems.forEach(nav => nav.classList.remove("active"));
+                pages.forEach(page => page.classList.remove("active"));
+
+                item.classList.add("active");
+
                 const activePage = this.shadowRoot.querySelector(`#${pageId}`);
                 if (activePage) {
                     activePage.classList.add("active");
                 }
             });
         });
+
+        const defaultPage = this.shadowRoot.querySelector("nav.sidebar div[data-page='insights']");
+        if (defaultPage) {
+            defaultPage.classList.add("active");
+        }
+
     }
 
     async fetchData() {
@@ -357,7 +395,6 @@ class InsightsWidget extends HTMLElement {
                 this.insightsData.forEach((insight) => {
                     this.feedbackCounts[insight.insight_task_id] = { likes: 0, dislikes: 0 };
                 })
-                console.log(this.feedbackCounts)
                 this.populateTable();
                 return;
             }
@@ -382,24 +419,20 @@ class InsightsWidget extends HTMLElement {
     }
 
     populateTable() {
-        const tableBody = this.shadowRoot.querySelector("#insightsTable tbody");
-        tableBody.innerHTML = "";
-
-        const getFirstTwoWords = (text) => {
-            return text.split(/\s+/).slice(0, 2).join(" ").toLowerCase();
-        };
+        const tilesContainer = this.shadowRoot.querySelector("#insightsTiles");
+        tilesContainer.innerHTML = "";
     
+        const getFirstTwoWords = (text) => text.split(/\s+/).slice(0, 2).join(" ").toLowerCase();
         const titleFirstTwoWords = getFirstTwoWords(this.pageTitle);
-        
+    
         const filteredInsights = this.insightsData.filter(insight => 
             insight.status === "completed" &&
             getFirstTwoWords(insight.story_name || '') === titleFirstTwoWords
         );
-
-        // If nothing matches, fall back to all "completed"
+    
         const insightsToRender = filteredInsights.length > 0
-        ? filteredInsights
-        : this.insightsData.filter(insight => insight.status === "completed");
+            ? filteredInsights
+            : this.insightsData.filter(insight => insight.status === "completed");
     
         insightsToRender.forEach((insight) => {
             let parsedResult;
@@ -411,44 +444,49 @@ class InsightsWidget extends HTMLElement {
             }
     
             const { answer, key_info, explanation } = parsedResult;
-            const row = document.createElement("tr");
-            row.setAttribute("data-insight-task-id", insight.insight_task_id);
             const feedback = this.feedbackCounts[insight.insight_task_id] || { likes: 0, dislikes: 0 };
             const containsTrend = answer.toLowerCase().includes("trend") || key_info.toLowerCase().includes("trend");
-
-            row.innerHTML = `
-                <td>
-                    <button class="accordion" style="font-size:16px; height: 65px">${answer}</button>
-                    <div class="panel">
-                        <p style="padding: 10px; font-size:14px;">${explanation}</p>
-                        <p style="padding: 10px; font-size:14px;">
-                            <span style="color: #E38100; font-weight: bold;">Details: </span>${key_info}
-                        </p>
-                        ${containsTrend ? 
-                            `<div class="tooltip trend-btn">
-                                <img src="${this.baseURL}/icons/trend.svg" alt="Icon" class="icon" style="margin: 8px">
-                                <span class="tooltiptext">Coming soon</span>
-                            </div>` : ''}
-                        <div style="text-align:right;">
-                            <div class="tooltip like-btn" data-insight-task-id="${insight.insight_task_id}" data-feedback="like">
-                                <img src="${this.baseURL}/icons/like_lineal.svg" alt="Icon" class="icon" style="margin: 8px; ">
-                                <span class="tooltiptext">Like</span> <span class="like-count" style="font-size: 14px;">${feedback.likes}</span>
-                            </div>
-                            <div class="tooltip dislike-btn" data-insight-task-id="${insight.insight_task_id}" data-feedback="dislike">
-                                <img src="${this.baseURL}/icons/dislike_lineal.svg" alt="Icon" class="icon" style="margin: 8px">
-                                <span class="tooltiptext">Dislike</span> <span class="dislike-count" style="font-size: 14px;">${feedback.dislikes}</span>
-                            </div>
-                            <div class="tooltip comment-btn" data-insight-task-id="${insight.insight_task_id}">
-                                <img src="${this.baseURL}/icons/notification.svg" alt="Icon" class="icon" style="margin: 8px">
-                                <span class="tooltiptext">Add comments</span>
-                            </div>
-                        </div>
+    
+            const tile = document.createElement("div");
+            tile.className = "tile";
+            tile.setAttribute("data-insight-task-id", insight.insight_task_id);
+    
+            tile.innerHTML = `
+                <div class="tile-header">${answer}</div>
+                <div class="tile-panel">
+                    <p>${explanation}</p>
+                    <p><span style="color: #E38100;">Details:</span> ${key_info}</p>
+                </div>
+                <div class="tile-actions">
+                    ${containsTrend ? `
+                    <div class="tooltip trend-btn">
+                        <img src="${this.baseURL}/icons/trend.svg" class="icon" />
+                        <span class="tooltiptext">Coming soon</span>
+                    </div>` : '<div></div>'}
+                    <div style="display: flex; gap: 12px; align-items: center;">
+                    <div class="tooltip like-btn" data-insight-task-id="${insight.insight_task_id}" data-feedback="like">
+                        <img src="${this.baseURL}/icons/like_lineal.svg" class="icon">
+                        <span class="tooltiptext">Like</span> <span class="like-count">${feedback.likes}</span>
                     </div>
-                </td>
+                    <div class="tooltip dislike-btn" data-insight-task-id="${insight.insight_task_id}" data-feedback="dislike">
+                        <img src="${this.baseURL}/icons/dislike_lineal.svg" class="icon">
+                        <span class="tooltiptext">Dislike</span> <span class="dislike-count">${feedback.dislikes}</span>
+                    </div>
+                    <div class="tooltip comment-btn" data-insight-task-id="${insight.insight_task_id}">
+                        <img src="${this.baseURL}/icons/notification.svg" class="icon">
+                        <span class="tooltiptext">Add comments</span>
+                    </div>
+                    </div>
+                </div>
             `;
-            tableBody.appendChild(row);
+    
+            tile.querySelector(".tile-header").addEventListener("click", () => {
+                tile.classList.toggle("active");
+            });
+    
+            tilesContainer.appendChild(tile);
         });
-        this.setupAccordions();
+    
         this.setupFeedbackButtons();
         // this.setupImagePopup();
     }
@@ -479,13 +517,13 @@ class InsightsWidget extends HTMLElement {
         icon.src = `${this.baseURL}/icons/${this.insightsData[index].favorite ? 'favorite' : 'unfavorite'}.svg`;
     }
 
-    searchTable() {
+    searchFunction() {
         const input = this.shadowRoot.querySelector("#searchInput").value.toLowerCase();
-        const rows = this.shadowRoot.querySelectorAll("#insightsTable tbody tr");
+        const rows = this.shadowRoot.querySelectorAll(".tile");
 
         rows.forEach((row) => {
             const text = row.innerText.toLowerCase();
-            row.style.display = text.includes(input) ? "" : "none";
+            row.style.display = text.includes(input) ? "block" : "none";
         });
     }
 
@@ -502,7 +540,7 @@ class InsightsWidget extends HTMLElement {
         let commentInsightTaskId = "";
 
         const sendFeedback = async (insightTaskId, comment, isLike) => {
-            const insightRow = this.shadowRoot.querySelector(`tr[data-insight-task-id='${insightTaskId}']`);
+            const insightRow = this.shadowRoot.querySelector(`.tile[data-insight-task-id='${insightTaskId}']`);
             // Select the like/dislike button and count elements
             const iconSelector = isLike ? '.like-btn img' : '.dislike-btn img';
             const countSelector = isLike ? '.like-count' : '.dislike-count';
@@ -647,4 +685,4 @@ class InsightsWidget extends HTMLElement {
     }    
     
 }
-customElements.define("insights-widget-dev", InsightsWidget);
+customElements.define("insights-widget", InsightsWidget);

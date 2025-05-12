@@ -2,28 +2,23 @@ class InsightsWidget extends HTMLElement {
     constructor() {
         super();
         this.attachShadow({ mode: "open" });
+        // this.username ='';
         this.insightsData = [];
         this.feedbackCounts = {};
         this.pageTitle = '';
+        this.baseURL = "https://abbysyz.github.io/friendlyreportingui.github.io/assets";
+
+        this.isDevelopment = false;
+        this.apiEndpoint = this.isDevelopment 
+            ? "http://127.0.0.1:8000/api/v1/active_insights"
+            : "https://microdelivery-pipeline-lenny.helium.me.sap.corp/api/v1/active_insights";
     }
 
     connectedCallback() {
         this.captureTitleFromParent();
+        // this.requestUsernameFromSAC();
         this.render();
-        // this.fetchFeedbackData();
         this.setupNavigation();
-
-        this.style.overflow = "auto";
-        this.style.height = "100%";
-        this.style.display = "block";
-        // setTimeout(() => {
-        //     let parent = this.parentElement;
-        //     while (parent) {
-        //         parent.style.overflow = "auto";
-        //         parent.style.maxHeight = "100vh"; // Ensure scrolling is possible
-        //         parent = parent.parentElement;
-        //     }
-        // }, 100);
     }
 
     captureTitleFromParent() {
@@ -36,6 +31,31 @@ class InsightsWidget extends HTMLElement {
         }
     }
 
+    // requestUsernameFromSAC() {
+    //     // Fire a custom event to ask SAC (if supported) for user info
+    //     this.dispatchEvent(
+    //         new CustomEvent("onUserInfoRequest", {
+    //             detail: {
+    //                 callback: (userInfo) => {
+    //                     console.log('Received userInfo:', userInfo);
+    //                     if (userInfo && userInfo.fullName) {
+    //                         this.username = userInfo.fullName;
+    //                     } else if (userInfo && userInfo.id) {
+    //                         this.username = userInfo.id;
+    //                     } else {
+    //                         this.username = 'Unknown User';
+    //                     }
+
+    //                     console.log('Captured Username:', this.username);
+    //                     // Now you can render or use the username as needed
+    //                 }
+    //             },
+    //             bubbles: true,
+    //             composed: true
+    //         })
+    //     );
+    // }
+
     render() {
         this.shadowRoot.innerHTML = `
             <style>
@@ -45,22 +65,22 @@ class InsightsWidget extends HTMLElement {
                     font-family: '72', sans-serif;
                     color: white;
                     min-height: 90vh;
-                    overflow: auto;
+                    // overflow: auto;
                 }
                 header {
                     width: 100%;
                     height: 80px;
                     // background-color: black;
                     color: #9EA0A7;
-                    padding: 10px 0;
+                    padding: 10px;
                     text-align: left;
                     position: fixed;
                     top: 0;
-                    left: 200px;
+                    left: 180;
                     z-index: 1000;
                 }
-                nav {
-                    width: 180px;
+                nav.sidebar {
+                    width: 160px;
                     background-color: #24242C;
                     color: #9EA0A7;
                     display: flex;
@@ -72,15 +92,21 @@ class InsightsWidget extends HTMLElement {
                     left: 0;
                     height: 100%;
                 }
-                nav div {
+
+                nav.sidebar div {
                     cursor: pointer;
-                    // margin: 10px 0;
                     padding: 15px;
                     display: flex;
                     align-items: center;
+                    color: #9EA0A7; /* default text color */
                 }
-                nav div:hover {
+
+                nav.sidebar div:hover {
                     background-color: #363640;
+                }
+
+                nav.sidebar div.active span {
+                    color: #E38100; /* highlight the text of the active item */
                 }
                 h1 {
                     color: #E38100
@@ -89,10 +115,8 @@ class InsightsWidget extends HTMLElement {
                     // padding: 10px;
                     color: white;
                     flex: 1;
-                    margin-left: 200px;
+                    margin-left: 180px;
                     display: none;
-                    overflow-y: auto;
-                    max-height: 90vh;
                 }
                 .main-content.active {
                     display: block; /* Show active page */
@@ -101,6 +125,7 @@ class InsightsWidget extends HTMLElement {
                     width: 20px;
                     height: 20px;
                     margin-right: 10px; 
+                    vertical-align: middle;
                 }
                 button {
                     background-color: transparent;
@@ -136,12 +161,12 @@ class InsightsWidget extends HTMLElement {
                 .table-container {
                     overflow-y: auto;
                     display: block;
-                    max-height: calc(100vh - 50px);;
+                    max-height: 80vh;
                 }
                 table {
                     border-collapse: collapse;
                     position: absolute;
-                    top: 80px;
+                    // top: 80px;
                 }
                 tbody {
                     display: block;
@@ -150,17 +175,22 @@ class InsightsWidget extends HTMLElement {
                 th, td {
                     text-align: left;
                 }
+                .scrollable-content {
+                    max-height: calc(100vh - 80px); /* Adjust this value based on your header/footer height */
+                    overflow-y: auto;
+                }
                 .accordion {
                     background-color: #27272F;
                     color: #DCE3E9;
                     cursor: pointer;
-                    padding: 18px;
+                    padding: 12px;
                     width: 100%;
                     border: none;
                     text-align: left;
                     outline: none;
-                    font-size: 15px;
+                    font-size: 14px;
                     transition: 0.4s;
+                    display: block;
                 }
                 .accordion.active, .accordion:hover {
                     background-color: #212125;
@@ -199,7 +229,7 @@ class InsightsWidget extends HTMLElement {
                     text-align: center;
                     padding: 12px;
                     position: fixed;
-                    top: 20px;
+                    top: 30%;
                     left: 50%;
                     transform: translateX(-50%);
                     border-radius: 5px;
@@ -262,14 +292,12 @@ class InsightsWidget extends HTMLElement {
 
             <nav class="sidebar">
                 <input id="searchInput" type="text" placeholder="Search..." onkeyup="this.getRootNode().host.searchTable()">
-                <div data-page="insights">
-                    <img src="https://abbysyz.github.io/friendlyreportingui.github.io/assets/icons/lightbulb.svg" class="icon">
+                <div data-page="insights">                    
                     <span>All Insights</span>
                 </div>
             </nav>
 
             <div class="main-content active" id="insights">
-                <h1>All Insights</h1>
                 <div id="toast" class="toast">Feedback sent successfully!</div>
                 <table id="insightsTable" class="table-container">
                     <tbody></tbody>
@@ -291,56 +319,74 @@ class InsightsWidget extends HTMLElement {
     }
 
     setupNavigation() {
-        const navItems = this.shadowRoot.querySelectorAll("nav div");
+        const navItems = this.shadowRoot.querySelectorAll("nav.sidebar div[data-page]");
         const pages = this.shadowRoot.querySelectorAll(".main-content");
 
         navItems.forEach((item) => {
             item.addEventListener("click", () => {
                 const pageId = item.getAttribute("data-page");
-                // Hide all pages
-                pages.forEach((page) => page.classList.remove("active"));
-                // Show the selected page
+
+                navItems.forEach(nav => nav.classList.remove("active"));
+                pages.forEach(page => page.classList.remove("active"));
+
+                item.classList.add("active");
+
                 const activePage = this.shadowRoot.querySelector(`#${pageId}`);
                 if (activePage) {
                     activePage.classList.add("active");
                 }
             });
         });
+
+        const defaultPage = this.shadowRoot.querySelector("nav.sidebar div[data-page='insights']");
+        if (defaultPage) {
+            defaultPage.classList.add("active");
+        }
+
     }
 
     async fetchData() {
-        const apiEndpoint = "https://microdelivery-pipeline-lenny.lithium.me.sap.corp/api/v1/active_insights/insights";
-        // const apiEndpoint = "https://0.0.0.0:8000/api/v1/active_insights/insights";
         try {
-            const response = await fetch(apiEndpoint);
+            const response = await fetch(`${this.apiEndpoint}/tasks`);
             const data = await response.json();
-            this.insightsData = data;
-            this.fetchFeedbackData();
+            this.insightsData = data.map(task => ({
+                ...task,
+                insight_task_id: task.id
+            }));
+          this.fetchFeedbackData();
         } catch (error) {
             console.error("Error fetching insights data:", error);
         }
     }
 
     async fetchFeedbackData() {
-        const apiEndpoint = "https://microdelivery-pipeline-lenny.lithium.me.sap.corp/api/v1/active_insights/feedbacks";
-        // const apiEndpoint = "https://0.0.0.0:8000/api/v1/active_insights/feedbacks";
-
         try {
-            const response = await fetch(apiEndpoint);
+            const response = await fetch(`${this.apiEndpoint}/feedbacks`);
             const feedbackData = await response.json();
 
+            if (!Array.isArray(feedbackData) || feedbackData.length === 0) {
+                console.warn("No feedback data found or invalid format.");
+                this.feedbackCounts = {};
+                this.insightsData.forEach((insight) => {
+                    this.feedbackCounts[insight.insight_task_id] = { likes: 0, dislikes: 0 };
+                })
+                this.populateTable();
+                return;
+            }
+
             this.feedbackCounts = feedbackData.reduce((acc, feedback) => {
-                const { insight_id, is_like } = feedback;
-                if (!acc[insight_id]) {
-                    acc[insight_id] = { likes: 0, dislikes: 0 };
+                const { insight_task_id, is_like } = feedback;
+                if (!acc[insight_task_id]) {
+                    acc[insight_task_id] = { likes: 0, dislikes: 0 };
                 }
                 if (is_like) {
-                    acc[insight_id].likes++;
+                    acc[insight_task_id].likes++;
                 } else {
-                    acc[insight_id].dislikes++;
+                    acc[insight_task_id].dislikes++;
                 }
                 return acc;
             }, {});
+
             this.populateTable();
         } catch (error) {
             console.error("Error fetching feedback data:", error);
@@ -358,49 +404,58 @@ class InsightsWidget extends HTMLElement {
         const titleFirstTwoWords = getFirstTwoWords(this.pageTitle);
         
         const filteredInsights = this.insightsData.filter(insight => 
-            getFirstTwoWords(insight.reporting_platform_name) === titleFirstTwoWords || 
-            !this.insightsData.some(i => getFirstTwoWords(i.reporting_platform_name) === titleFirstTwoWords)
+            insight.status === "completed" &&
+            getFirstTwoWords(insight.story_name || '') === titleFirstTwoWords
         );
+
+        // If nothing matches, fall back to all "completed"
+        const insightsToRender = filteredInsights.length > 0
+        ? filteredInsights
+        : this.insightsData.filter(insight => insight.status === "completed");
     
-        filteredInsights.forEach((insight) => {
-            let parsedContent;
+        insightsToRender.forEach((insight) => {
+            let parsedResult;
             try {
-                parsedContent = JSON.parse(insight.content);
+                parsedResult = JSON.parse(insight.result);
             } catch (e) {
-                console.error("Failed to parse content JSON:", insight.content, e);
+                console.error("Failed to parse result JSON:", insight.result, e);
                 return;
             }
     
-            const { answer, key_info, explanation } = parsedContent;
+            const { answer, key_info, explanation } = parsedResult;
             const row = document.createElement("tr");
-            const feedback = this.feedbackCounts[insight.id] || { likes: 0, dislikes: 0 };
+            row.setAttribute("data-insight-task-id", insight.insight_task_id);
+            const feedback = this.feedbackCounts[insight.insight_task_id] || { likes: 0, dislikes: 0 };
             const containsTrend = answer.toLowerCase().includes("trend") || key_info.toLowerCase().includes("trend");
 
             row.innerHTML = `
                 <td>
                     <button class="accordion" style="font-size:16px; height: 65px">${answer}</button>
                     <div class="panel">
-                        <p style="padding: 10px; font-size:14px;">${explanation}</p>
-                        <p style="padding: 10px; font-size:14px;">
-                            <span style="color: #E38100; font-weight: bold;">Details: </span>${key_info}
+                        <p style="font-size:14px;">${explanation}</p>
+                        <p style="font-size:14px;">
+                            <span style="color: #E38100;">Details: </span>${key_info}
                         </p>
-                        ${containsTrend ? 
-                            `<div class="tooltip trend-btn">
-                                <img src="https://abbysyz.github.io/friendlyreportingui.github.io/assets/icons/trend.svg" alt="Icon" class="icon" style="margin: 8px">
-                                <span class="tooltiptext">Coming soon</span>
-                            </div>` : ''}
-                        <div style="text-align:right;">
-                            <div class="tooltip like-btn" data-insight-id="${insight.id}" data-feedback="like">
-                                <img src="https://abbysyz.github.io/friendlyreportingui.github.io/assets/icons/thumbup.svg" alt="Icon" class="icon" style="margin: 8px">
-                                <span class="tooltiptext">Like</span> <span class="feedback-count" style="font-size: 14px;">${feedback.likes}</span>
-                            </div>
-                            <div class="tooltip dislike-btn" data-insight-id="${insight.id}" data-feedback="dislike">
-                                <img src="https://abbysyz.github.io/friendlyreportingui.github.io/assets/icons/thumbdown.svg" alt="Icon" class="icon" style="margin: 8px">
-                                <span class="tooltiptext">Dislike</span> <span class="feedback-count" style="font-size: 14px;">${feedback.dislikes}</span>
-                            </div>
-                            <div class="tooltip comment-btn" data-insight-id="${insight.id}">
-                                <img src="https://abbysyz.github.io/friendlyreportingui.github.io/assets/icons/notification.svg" alt="Icon" class="icon" style="margin: 8px">
-                                <span class="tooltiptext">Add comments</span>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            ${containsTrend ? 
+                                `<div class="tooltip trend-btn" style="display: flex; align-items: center;">
+                                    <img src="${this.baseURL}/icons/trend.svg" alt="Icon" class="icon" style="margin: 8px">
+                                    <span class="tooltiptext">Coming soon</span>
+                                </div>` : '<div></div>'}
+
+                            <div style="display: flex; gap: 12px; align-items: center;">
+                                <div class="tooltip like-btn" data-insight-task-id="${insight.insight_task_id}" data-feedback="like">
+                                    <img src="${this.baseURL}/icons/like_lineal.svg" alt="Icon" class="icon" style="margin: 8px;">
+                                    <span class="tooltiptext">Like</span> <span class="like-count" style="font-size: 14px;">${feedback.likes}</span>
+                                </div>
+                                <div class="tooltip dislike-btn" data-insight-task-id="${insight.insight_task_id}" data-feedback="dislike">
+                                    <img src="${this.baseURL}/icons/dislike_lineal.svg" alt="Icon" class="icon" style="margin: 8px;">
+                                    <span class="tooltiptext">Dislike</span> <span class="dislike-count" style="font-size: 14px;">${feedback.dislikes}</span>
+                                </div>
+                                <div class="tooltip comment-btn" data-insight-task-id="${insight.insight_task_id}">
+                                    <img src="${this.baseURL}/icons/notification.svg" alt="Icon" class="icon" style="margin: 8px;">
+                                    <span class="tooltiptext">Add comments</span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -410,7 +465,7 @@ class InsightsWidget extends HTMLElement {
         });
         this.setupAccordions();
         this.setupFeedbackButtons();
-        this.setupImagePopup();
+        // this.setupImagePopup();
     }
 
     setupAccordions() {
@@ -436,7 +491,7 @@ class InsightsWidget extends HTMLElement {
     toggleFavourite(index, button) {
         const icon = button.querySelector("img");
         this.insightsData[index].favorite = !this.insightsData[index].favorite;
-        icon.src = `https://abbysyz.github.io/friendlyreportingui.github.io/assets/icons/${this.insightsData[index].favorite ? 'favorite' : 'unfavorite'}.svg`;
+        icon.src = `${this.baseURL}/icons/${this.insightsData[index].favorite ? 'favorite' : 'unfavorite'}.svg`;
     }
 
     searchTable() {
@@ -459,100 +514,80 @@ class InsightsWidget extends HTMLElement {
         const sendButton = modal?.querySelector(".send-btn");
         const commentInput = modal?.querySelector(".comment-input");
     
-        let commentInsightId = "";
+        let commentInsightTaskId = "";
 
-        const sendFeedback = async (insightId, comment, isLike) => {
+        const sendFeedback = async (insightTaskId, comment, isLike) => {
+            const insightRow = this.shadowRoot.querySelector(`tr[data-insight-task-id='${insightTaskId}']`);
+            // Select the like/dislike button and count elements
+            const iconSelector = isLike ? '.like-btn img' : '.dislike-btn img';
+            const countSelector = isLike ? '.like-count' : '.dislike-count';
+            const oppositeIconSelector = isLike ? '.dislike-btn img' : '.like-btn img';
+
+            const icon = insightRow.querySelector(iconSelector);
+            const countSpan = insightRow.querySelector(countSelector);
+            const oppositeIcon = insightRow.querySelector(oppositeIconSelector);
+
+            // Check if already liked/disliked
+            if (icon.src.includes(`${isLike ? 'like_filled' : 'dislike_filled'}`)) {
+                this.showToast(`You already ${isLike ? 'liked' : 'disliked'}!`, "error");
+                return;
+            }
+
+            // Update UI with filled icons and counts
+            if (icon && countSpan) {
+                icon.src = `${this.baseURL}/icons/${isLike ? 'like_filled' : 'dislike_filled'}.svg`;
+
+                if (oppositeIcon) {
+                    oppositeIcon.src = `${this.baseURL}/icons/${isLike ? 'dislike_lineal' : 'like_lineal'}.svg`;
+                }
+
+                const currentCount = parseInt(countSpan.textContent, 10) || 0;
+                countSpan.textContent = currentCount + 1;
+            } 
+
             try {
-                    const response = await fetch("https://microdelivery-pipeline-lenny.lithium.me.sap.corp/api/v1/active_insights/feedbacks", {
-                    // const response = await fetch("https://0.0.0.0:8000/api/v1/active_insights/feedbacks", {
+                const response = await fetch(`${this.apiEndpoint}/feedbacks`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"
                     },
                     body: JSON.stringify({
-                        insight_id: insightId,
-                        feedback: comment,
-                        is_like: isLike
+                        "insight_task_id": insightTaskId,
+                        "comment": comment,
+                        "is_like": isLike,
+                        "user_id":""
                     })
                 });
                 if (!response.ok) {
                     throw new Error("Failed to send feedback");
                 }
-                console.log(`Feedback sent successfully:`, insightId, comment, isLike);
-                this.showToast("Thank you for your feedback!");
-                updateFeedbackCounts(insightId); 
+                console.log(`Feedback sent successfully:`, insightTaskId, comment, isLike);
+                this.showToast("Thank you for your feedback!", "info");
             } catch (error) {
                 console.error("Error sending feedback:", error);
-            }
-        };
+                console.log(`Error sent successfully:`, insightTaskId, comment, isLike);
 
-        const updateFeedbackCounts = async (insightId) => {
-            try {
-                const response = await fetch(`https://microdelivery-pipeline-lenny.lithium.me.sap.corp/api/v1/active_insights/feedbacks?insight_id=${insightId}`);
-                // const response = await fetch(`https://0.0.0.0:8000/api/v1/active_insights/feedbacks?insight_id=${insightId}`);
-
-                const feedbackData = await response.json();
-    
-                // Count the number of likes and dislikes
-                const likeCount = feedbackData.filter(feedback => feedback.is_like).length;
-                const dislikeCount = feedbackData.filter(feedback => !feedback.is_like).length;
-    
-                // Update the UI with the counts
-                const insightRow = this.shadowRoot.querySelector(`tr[data-insight-id='${insightId}']`);
-                if (!insightRow) {
-                    console.error(`Insight row for insightId ${insightId} not found. Check if the correct insightId is assigned.`);
-                    return;
-                }
-                // if (insightRow) {
-                //     const likeCountElement = insightRow.querySelector(".like-count");
-                //     const dislikeCountElement = insightRow.querySelector(".dislike-count");
-    
-                //     if (likeCountElement) likeCountElement.textContent = `Likes: ${likeCount}`;
-                //     if (dislikeCountElement) dislikeCountElement.textContent = `Dislikes: ${dislikeCount}`;
-                // }
-                if (insightRow) {
-                    const likeCountElement = insightRow.querySelector(".like-count");
-                    const dislikeCountElement = insightRow.querySelector(".dislike-count");
-    
-                    if (likeCountElement) {
-                        likeCountElement.textContent = `Likes: ${likeCount}`;
-                        console.log("Updated like count element");
-                    } else {
-                        console.error("Like count element not found");
-                    }
-    
-                    if (dislikeCountElement) {
-                        dislikeCountElement.textContent = `Dislikes: ${dislikeCount}`;
-                        console.log("Updated dislike count element");
-                    } else {
-                        console.error("Dislike count element not found");
-                    }
-                } else {
-                    console.error(`Insight row for insightId ${insightId} not found`);
-                }
-            } catch (error) {
-                console.error("Error fetching feedback counts:", error);
             }
         };
 
         likeButtons.forEach((btn) => {
             btn.addEventListener("click", async () => {
-                const insightId = btn.getAttribute("data-insight-id");
-                sendFeedback(insightId, '', true);
+                const insightTaskId = btn.getAttribute("data-insight-task-id");
+                sendFeedback(insightTaskId, '', true, "");
             });
         });
     
         dislikeButtons.forEach((btn) => {
             btn.addEventListener("click", async () => {                
-                const insightId = btn.getAttribute("data-insight-id");
-                sendFeedback(insightId, '', false);
+                const insightTaskId = btn.getAttribute("data-insight-task-id");
+                sendFeedback(insightTaskId, '', false, "");
             });
         });
     
         commentButtons.forEach((btn) => {
             btn.addEventListener("click", () => {
-                commentInsightId = btn.getAttribute("data-insight-id");
-                console.log(commentInsightId)
+                commentInsightTaskId = btn.getAttribute("data-insight-task-id");
+                console.log(commentInsightTaskId)
                 commentInput.value = ""; // Clear previous input
                 commentInput.classList.remove("error"); // Remove error class if any
                 commentInput.placeholder = "Type your feedback here..."; // Reset placeholder
@@ -566,32 +601,33 @@ class InsightsWidget extends HTMLElement {
 
         sendButton.addEventListener("click", async () => {
             // Check if the feedback text is empty
-            if (!commentInsightId || !commentInput.value.trim()) {
+            if (!commentInsightTaskId || !commentInput.value.trim()) {
                 commentInput.classList.add("error");
                 commentInput.placeholder = "Please type your feedback...";
                 commentInput.focus();
                 return;
             }
             commentInput.classList.remove("error");
-            sendFeedback(commentInsightId, commentInput.value, null);
+            sendFeedback(commentInsightTaskId, commentInput.value, null, "");
             modal.style.display = "none";
         });
     }
 
-    toggleCommentModal(show, insightId = null) {
+    toggleCommentModal(show, insightTaskId = null) {
         const modal = this.shadowRoot.querySelector("#commentModal");
         modal.classList.toggle("active", show);
-        if (show) this.currentInsightId = insightId;
+        if (show) this.currentInsightTaskId = insightTaskId;
     }
 
-    showToast(message) {
+    showToast(message, type = "info") {
         const toast = this.shadowRoot.getElementById("toast");
         toast.textContent = message;
+        toast.style.color = type === "error" ? "#f44336" : "#27272F"; //red or default dark
         toast.classList.add("show");
     
         setTimeout(() => {
             toast.classList.remove("show");
-        }, 4000);
+        }, 3000);
     }
 
     setupImagePopup() {
@@ -607,10 +643,10 @@ class InsightsWidget extends HTMLElement {
             popup.style.display = "none";
             popup.style.padding = "10px";
             popup.style.borderRadius = "8px";
-            popup.innerHTML = `
-                <button id="closePopup" style="position: absolute; top: 10px; right: 10px; background: red; color: white; border: none; border-radius: 5px; cursor: pointer;">X</button>
-                <img src="https://abbysyz.github.io/friendlyreportingui.github.io/assets/images/trend.png" alt="Popup Image" style="max-width: 100%; height: auto;">
-            `;
+            // popup.innerHTML = `
+            //     <button id="closePopup" style="position: absolute; top: 10px; right: 10px; background: red; color: white; border: none; border-radius: 5px; cursor: pointer;">X</button>
+            //     <img src="${this.baseURL}/images/trend.png" alt="Popup Image" style="max-width: 100%; height: auto;">
+            // `;
             this.shadowRoot.appendChild(popup);
     
             this.shadowRoot.querySelector("#closePopup").addEventListener("click", () => {
@@ -624,8 +660,6 @@ class InsightsWidget extends HTMLElement {
             });
         });
     }    
-
-
     
 }
 customElements.define("insights-widget", InsightsWidget);
