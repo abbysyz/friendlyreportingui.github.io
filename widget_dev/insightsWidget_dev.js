@@ -8,10 +8,10 @@ class InsightsWidget extends HTMLElement {
         this.pageTitle = '';
         this.baseURL = "https://abbysyz.github.io/friendlyreportingui.github.io/assets";
 
-        this.isDevelopment = true;
+        this.isDevelopment = false;
         this.apiEndpoint = this.isDevelopment 
             ? "http://127.0.0.1:8000/api/v1/active_insights"
-            : "https://microdelivery-pipeline-lenny.helium.me.sap.corp/api/v1/active_insights";
+            : "https://microdelivery-pipeline-lenny.helium.me.sap.corp/";
     }
 
     connectedCallback() {
@@ -468,7 +468,7 @@ class InsightsWidget extends HTMLElement {
               const trendData = await Promise.all(data.map(async task => {
                 const insightTaskId = task.id;
                 try {
-                    const trendRes = await fetch(`${this.apiEndpoint}/file?insight_task_id=${insightTaskId}`);
+                    const trendRes = await fetch(`${this.apiEndpoint}/api/v1/active_insights/file?insight_task_id=${insightTaskId}`);
                     const trendJson = await trendRes.json();
                     if (Array.isArray(trendJson) && trendJson.length > 0) {
                         return { ...task, insight_task_id: insightTaskId, trendURL: `${this.apiEndpoint}${trendJson[0]}` };
