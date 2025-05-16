@@ -239,8 +239,6 @@ class InsightsWidget extends HTMLElement {
                     gap: 16px;
                     padding: 20px;
                     justify-content: flex-start;
-                    max-height: 100%;
-                    overflow-y: auto;
                 }
 
                 .tile {
@@ -369,7 +367,8 @@ class InsightsWidget extends HTMLElement {
                     const trendRes = await fetch(`${this.apiEndpoint}/api/v1/active_insights/file?insight_task_id=${insightTaskId}`);
                     const trendJson = await trendRes.json();
                     if (Array.isArray(trendJson) && trendJson.length > 0) {
-                        return { ...task, insight_task_id: insightTaskId, trendURL: `${this.apiEndpoint}${trendJson[0]}` };
+                        const cleanPath = trendJson[0].replace(/^\.\//, '');
+                        return { ...task, insight_task_id: insightTaskId, trendURL: `${this.apiEndpoint}${cleanPath}` };
                     }
                 } catch (err) {
                     // ignore error
@@ -530,7 +529,7 @@ class InsightsWidget extends HTMLElement {
         });
     
         this.setupFeedbackButtons();
-        // this.setupImagePopup();
+        this.setupImagePopup();
     }
 
     toggleFavourite(index, button) {
