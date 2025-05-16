@@ -2,7 +2,6 @@ class InsightsWidget extends HTMLElement {
     constructor() {
         super();
         this.attachShadow({ mode: "open" });
-        // this.username ='';
         this.insightsData = [];
         this.feedbackCounts = {};
         this.pageTitle = '';
@@ -16,7 +15,6 @@ class InsightsWidget extends HTMLElement {
 
     connectedCallback() {
         this.captureTitleFromParent();
-        // this.requestUsernameFromSAC();
         this.render();
         this.setupNavigation();
     }
@@ -30,31 +28,6 @@ class InsightsWidget extends HTMLElement {
             console.log('Title element not found in parent.');
         }
     }
-
-    // requestUsernameFromSAC() {
-    //     // Fire a custom event to ask SAC (if supported) for user info
-    //     this.dispatchEvent(
-    //         new CustomEvent("onUserInfoRequest", {
-    //             detail: {
-    //                 callback: (userInfo) => {
-    //                     console.log('Received userInfo:', userInfo);
-    //                     if (userInfo && userInfo.fullName) {
-    //                         this.username = userInfo.fullName;
-    //                     } else if (userInfo && userInfo.id) {
-    //                         this.username = userInfo.id;
-    //                     } else {
-    //                         this.username = 'Unknown User';
-    //                     }
-
-    //                     console.log('Captured Username:', this.username);
-    //                     // Now you can render or use the username as needed
-    //                 }
-    //             },
-    //             bubbles: true,
-    //             composed: true
-    //         })
-    //     );
-    // }
 
     render() {
         this.shadowRoot.innerHTML = `
@@ -266,6 +239,8 @@ class InsightsWidget extends HTMLElement {
                     gap: 16px;
                     padding: 20px;
                     justify-content: flex-start;
+                    max-height: 100%;
+                    overflow-y: auto;
                 }
 
                 .tile {
@@ -528,45 +503,20 @@ class InsightsWidget extends HTMLElement {
             requestAnimationFrame(() => {
                 const tileMinHeight = 300;
                 const tileHeader = tile.querySelector(".tile-header");
-
-                const headerHeight = tileHeader.offsetHeight;
-                const availableHeight = tileMinHeight - headerHeight - 32; // estimate padding
+                const headerHeight = tileHeader?.offsetHeight || 0;
+            
                 const contentHeight = combinedContent.scrollHeight;
-
+                const availableHeight = tileMinHeight - headerHeight - 32; // Adjust padding estimate
+            
                 if (contentHeight > availableHeight) {
                     combinedContent.style.maxHeight = `${availableHeight}px`;
                     combinedContent.style.overflow = 'hidden';
                     combinedContent.classList.add("collapsed");
                     toggleBtn.style.display = "block";
-
+            
                     toggleBtn.addEventListener("click", () => {
                         const isCollapsed = combinedContent.classList.toggle("collapsed");
                         combinedContent.style.maxHeight = isCollapsed ? `${availableHeight}px` : `${contentHeight}px`;
-                        toggleBtn.textContent = isCollapsed ? "more..." : "hide";
-                    });
-                }
-            });
-    
-            // Wait for DOM layout
-            requestAnimationFrame(() => {
-                const tileMinHeight = 300;
-                const tileHeader = tile.querySelector(".tile-header");
-                const detailsSection = tile.querySelector(".details-section");
-    
-                const headerHeight = tileHeader.offsetHeight;
-                const detailsHeight = detailsSection.offsetHeight;
-    
-                const availableHeight = tileMinHeight - headerHeight - detailsHeight - 32; // estimate padding
-                const contentHeight = explanationContent.scrollHeight;
-    
-                if (contentHeight > availableHeight) {
-                    explanationContent.style.maxHeight = `${availableHeight}px`;
-                    explanationContent.classList.add("collapsed");
-                    toggleBtn.style.display = "block";
-    
-                    toggleBtn.addEventListener("click", () => {
-                        const isCollapsed = explanationContent.classList.toggle("collapsed");
-                        explanationContent.style.maxHeight = isCollapsed ? `${availableHeight}px` : `${contentHeight}px`;
                         toggleBtn.textContent = isCollapsed ? "more..." : "hide";
                     });
                 }
