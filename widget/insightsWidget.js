@@ -11,7 +11,7 @@ class InsightsWidget extends HTMLElement {
         this.isDevelopment = false;
         this.apiEndpoint = this.isDevelopment 
             ? "http://127.0.0.1:8000/api/v1/active_insights"
-            : "https://microdelivery-pipeline-lenny.helium.me.sap.corp/";
+            : "https://microdelivery-pipeline-lenny.helium.me.sap.corp";
     }
 
     connectedCallback() {
