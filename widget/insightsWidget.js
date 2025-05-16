@@ -11,7 +11,7 @@ class InsightsWidget extends HTMLElement {
         this.isDevelopment = false;
         this.apiEndpoint = this.isDevelopment 
             ? "http://127.0.0.1:8000/api/v1/active_insights"
-            : "https://microdelivery-pipeline-lenny.helium.me.sap.corp/api/v1/active_insights";
+            : "https://microdelivery-pipeline-lenny.helium.me.sap.corp/";
     }
 
     connectedCallback() {
@@ -81,7 +81,7 @@ class InsightsWidget extends HTMLElement {
                 }
                 nav.topnav {
                     width: 100%;
-                    background-color: #1D2225;
+                    background-color: #365F83;
                     color: #9EA0A7;
                     display: flex;
                     justify-content: space-between;
@@ -106,7 +106,7 @@ class InsightsWidget extends HTMLElement {
                     border-radius: 4px;
                 }
                 nav.topnav .nav-links div[data-page]:hover {
-                    background-color: #363640;
+                    background-color: #294B68;
                 }
                 nav.topnav .nav-links div[data-page].active span {
                     color: #E38100;
@@ -119,7 +119,7 @@ class InsightsWidget extends HTMLElement {
                 #searchInput {
                     width: 250px;
                     height: 26px;
-                    border: 2px solid #4F505E;
+                    border: 2px solid #2F5171;
                     border-radius: 20px;
                     color: #DCE3E9;
                     padding: 4px 12px;
@@ -187,11 +187,11 @@ class InsightsWidget extends HTMLElement {
                 #searchInput {
                     width: 70%;
                     height: 20px;
-                    border: 2px solid #4F505E;
+                    border: 2px solid #4074A2;
                     border-radius: 20px;
                     color: #DCE3E9;
                     margin-left: 15px;
-                    background-color: #363640;
+                    background-color: #294B68;
                 }
                 .toast {
                     visibility: hidden;
@@ -273,7 +273,7 @@ class InsightsWidget extends HTMLElement {
                     color: #DCE3E9;
                     border-radius: 8px;
                     width: 300px;
-                    min-height: 180px;
+                    min-height: 300px;
                     padding: 16px;
                     box-shadow: 0 2px 4px rgba(0,0,0,0.2);
                     display: flex;
@@ -282,22 +282,16 @@ class InsightsWidget extends HTMLElement {
                 }
 
                 .tile-header {
-                    font-size: 16px;
-                    margin-bottom: 12px;
+                    font-size: 14px;
                     cursor: pointer;
                 }
 
                 .tile-panel {
                     display: block;
                     font-size: 14px;
-                    margin-top: 12px;
                     flex-grow: 1;
                     color: #A39F9E;
                     
-                }
-
-                .tile.active .tile-panel {
-                    display: block;
                 }
 
                 .tile-actions {
@@ -305,6 +299,45 @@ class InsightsWidget extends HTMLElement {
                     justify-content: space-between;
                     align-items: center;
                     margin-top: 12px;
+                }
+                
+                .detail-line {
+                    margin: 0;
+                    color: #DCE3E9;
+                    font-size: 13px;
+                }
+                
+                .explanation-wrapper {
+                overflow: hidden;
+                transition: max-height 0.4s ease;
+                margin-top: 14px;
+                }
+
+                .explanation-content {
+                transition: max-height 0.4s ease;
+                }
+
+                .explanation-content.collapsed {
+                overflow: hidden;
+                }
+
+                .toggle-btn {
+                background: none;
+                border: none;
+                color: #007aff;
+                cursor: pointer;
+                margin-top: 4px;
+                font-size: 14px;
+                }
+
+                .toggle-btn {
+                    background: none;
+                    border: none;
+                    color: #81B3E0;
+                    font-size: 12px;
+                    cursor: pointer;
+                    text-align: left;
+                    padding: 4px 0 0;
                 }
 
             </style>
@@ -368,12 +401,23 @@ class InsightsWidget extends HTMLElement {
 
     async fetchData() {
         try {
-            const response = await fetch(`${this.apiEndpoint}/tasks`);
+            const response = await fetch(`${this.apiEndpoint}/api/v1/active_insights/tasks`);
             const data = await response.json();
-            this.insightsData = data.map(task => ({
-                ...task,
-                insight_task_id: task.id
+            const trendData = await Promise.all(data.map(async task => {
+                const insightTaskId = task.id;
+                try {
+                    const trendRes = await fetch(`${this.apiEndpoint}/api/v1/active_insights/file?insight_task_id=${insightTaskId}`);
+                    const trendJson = await trendRes.json();
+                    if (Array.isArray(trendJson) && trendJson.length > 0) {
+                        return { ...task, insight_task_id: insightTaskId, trendURL: `${this.apiEndpoint}${trendJson[0]}` };
+                    }
+                } catch (err) {
+                    // ignore error
+                }
+                return { ...task, insight_task_id: insightTaskId, trendURL: '' };
             }));
+    
+            this.insightsData = trendData;
           this.fetchFeedbackData();
         } catch (error) {
             console.error("Error fetching insights data:", error);
@@ -382,7 +426,7 @@ class InsightsWidget extends HTMLElement {
 
     async fetchFeedbackData() {
         try {
-            const response = await fetch(`${this.apiEndpoint}/feedbacks`);
+            const response = await fetch(`${this.apiEndpoint}/api/v1/active_insights/feedbacks`);
             const feedbackData = await response.json();
 
             if (!Array.isArray(feedbackData) || feedbackData.length === 0) {
@@ -450,14 +494,16 @@ class InsightsWidget extends HTMLElement {
             tile.innerHTML = `
                 <div class="tile-header">${answer}</div>
                 <div class="tile-panel">
-                    <p>${explanation}</p>
-                    <p><span style="color: #E38100;">Details:</span> ${key_info}</p>
+                    <div class="details-section">
+                        <p style="margin-bottom: 0;"><span style="color: #E38100;">Details:</span></p>
+                        ${key_info.split(';').map(item => `<p class="detail-line">${item.trim()}</p>`).join('')}
+                    </div>
                 </div>
                 <div class="tile-actions">
-                    ${containsTrend ? `
-                    <div class="tooltip trend-btn">
+                ${insight.trendURL.includes(".png") ? `
+                    <div class="tooltip trend-btn" data-image-url="${insight.trendURL}">
                         <img src="${this.baseURL}/icons/trend.svg" class="icon" />
-                        <span class="tooltiptext">Coming soon</span>
+                        <span class="tooltiptext">View trend</span>
                     </div>` : '<div></div>'}
                     <div style="display: flex; gap: 12px; align-items: center;">
                     <div class="tooltip like-btn" data-insight-task-id="${insight.insight_task_id}" data-feedback="like">
@@ -476,6 +522,48 @@ class InsightsWidget extends HTMLElement {
                 </div>
             `;
     
+            // Add explanation + toggle
+            const explanationWrapper = document.createElement("div");
+            explanationWrapper.className = "explanation-wrapper";
+    
+            const explanationContent = document.createElement("div");
+            explanationContent.className = "explanation-content";
+            explanationContent.innerHTML = explanation;
+    
+            const toggleBtn = document.createElement("button");
+            toggleBtn.className = "toggle-btn";
+            toggleBtn.textContent = "more...";
+            toggleBtn.style.display = "none";
+    
+            explanationWrapper.appendChild(explanationContent);
+            tile.querySelector(".tile-panel").appendChild(explanationWrapper);
+            tile.querySelector(".tile-panel").appendChild(toggleBtn);
+    
+            // Wait for DOM layout
+            requestAnimationFrame(() => {
+                const tileMinHeight = 300;
+                const tileHeader = tile.querySelector(".tile-header");
+                const detailsSection = tile.querySelector(".details-section");
+    
+                const headerHeight = tileHeader.offsetHeight;
+                const detailsHeight = detailsSection.offsetHeight;
+    
+                const availableHeight = tileMinHeight - headerHeight - detailsHeight - 32; // estimate padding
+                const contentHeight = explanationContent.scrollHeight;
+    
+                if (contentHeight > availableHeight) {
+                    explanationContent.style.maxHeight = `${availableHeight}px`;
+                    explanationContent.classList.add("collapsed");
+                    toggleBtn.style.display = "block";
+    
+                    toggleBtn.addEventListener("click", () => {
+                        const isCollapsed = explanationContent.classList.toggle("collapsed");
+                        explanationContent.style.maxHeight = isCollapsed ? `${availableHeight}px` : `${contentHeight}px`;
+                        toggleBtn.textContent = isCollapsed ? "more..." : "hide";
+                    });
+                }
+            });
+    
             tile.querySelector(".tile-header").addEventListener("click", () => {
                 tile.classList.toggle("active");
             });
@@ -485,26 +573,6 @@ class InsightsWidget extends HTMLElement {
     
         this.setupFeedbackButtons();
         // this.setupImagePopup();
-    }
-
-    setupAccordions() {
-        const accordions = this.shadowRoot.querySelectorAll(".accordion");
-
-        accordions.forEach((accordion) => {
-            const panel = accordion.nextElementSibling;
-            accordion.classList.add("active");
-            panel.style.maxHeight = panel.scrollHeight + "px";
-
-            accordion.addEventListener("click", function () {
-                if (this.classList.contains("active")) {
-                    this.classList.remove("active");
-                    panel.style.maxHeight = null; // Collapse
-                } else {
-                    this.classList.add("active");
-                    panel.style.maxHeight = panel.scrollHeight + "px";
-                }
-            });
-        });
     }
 
     toggleFavourite(index, button) {
@@ -565,7 +633,7 @@ class InsightsWidget extends HTMLElement {
             } 
 
             try {
-                const response = await fetch(`${this.apiEndpoint}/feedbacks`, {
+                const response = await fetch(`${this.apiEndpoint}/api/v1/active_insights/feedbacks`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"
@@ -650,35 +718,49 @@ class InsightsWidget extends HTMLElement {
     }
 
     setupImagePopup() {
-        if (!this.shadowRoot.querySelector("#imagePopup")) {
-            const popup = document.createElement("div");
+        let popup = this.shadowRoot.querySelector("#imagePopup");
+        if (!popup) {
+            popup = document.createElement("div");
             popup.id = "imagePopup";
             popup.style.position = "fixed";
             popup.style.top = "50%";
             popup.style.left = "50%";
-            popup.style.transform = "translate(-40%, -40%)";
-            popup.style.background = "white";
-            popup.style.boxShadow = "0px 4px 6px rgba(0,0,0,0.1)";
+            popup.style.transform = "translate(-50%, -50%)";
+            popup.style.background = "#fff";
+            popup.style.boxShadow = "0 4px 10px rgba(0,0,0,0.2)";
+            popup.style.border = "1px solid #ccc";
+            popup.style.borderRadius = "10px";
+            popup.style.zIndex = "9999";
+            popup.style.padding = "16px";
             popup.style.display = "none";
-            popup.style.padding = "10px";
-            popup.style.borderRadius = "8px";
-            // popup.innerHTML = `
-            //     <button id="closePopup" style="position: absolute; top: 10px; right: 10px; background: red; color: white; border: none; border-radius: 5px; cursor: pointer;">X</button>
-            //     <img src="${this.baseURL}/images/trend.png" alt="Popup Image" style="max-width: 100%; height: auto;">
-            // `;
-            this.shadowRoot.appendChild(popup);
     
-            this.shadowRoot.querySelector("#closePopup").addEventListener("click", () => {
+            const closeBtn = document.createElement("button");
+            closeBtn.textContent = "Close";
+            closeBtn.style.marginTop = "8px";
+            closeBtn.addEventListener("click", () => {
                 popup.style.display = "none";
             });
+    
+            const img = document.createElement("img");
+            img.style.maxWidth = "600px";
+            img.style.maxHeight = "400px";
+            img.id = "popupImage";
+    
+            popup.appendChild(img);
+            popup.appendChild(closeBtn);
+            this.shadowRoot.appendChild(popup);
         }
     
-        this.shadowRoot.querySelectorAll(".trend-btn").forEach(button => {
-            button.addEventListener("click", () => {
-                this.shadowRoot.querySelector("#imagePopup").style.display = "block";
+        const trendBtns = this.shadowRoot.querySelectorAll(".trend-btn");
+        trendBtns.forEach(btn => {
+            btn.addEventListener("click", () => {
+                const imageUrl = btn.getAttribute("data-image-url");
+                const popupImage = this.shadowRoot.querySelector("#popupImage");
+                popupImage.src = imageUrl;
+                popup.style.display = "block";
             });
         });
-    }    
+    }
     
 }
 customElements.define("insights-widget", InsightsWidget);
