@@ -368,7 +368,7 @@ class InsightsWidget extends HTMLElement {
                     const trendJson = await trendRes.json();
                     if (Array.isArray(trendJson) && trendJson.length > 0) {
                         const cleanPath = trendJson[0].replace(/^\.\//, '');
-                        return { ...task, insight_task_id: insightTaskId, trendURL: `${this.apiEndpoint}${cleanPath}` };
+                        return { ...task, insight_task_id: insightTaskId, trendURL: `${this.apiEndpoint+ '/'}${cleanPath}` };
                     }
                 } catch (err) {
                     // ignore error
