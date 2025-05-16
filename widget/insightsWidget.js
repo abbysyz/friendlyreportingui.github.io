@@ -64,13 +64,12 @@ class InsightsWidget extends HTMLElement {
                     display: block;
                     font-family: '72', sans-serif;
                     color: white;
-                    min-height: 90vh;
-                    // overflow: auto;
+                    height: 100%;
+                    box-sizing: border-box;
                 }
                 header {
                     width: 100%;
                     height: 80px;
-                    // background-color: black;
                     color: #9EA0A7;
                     padding: 10px;
                     text-align: left;
@@ -127,10 +126,11 @@ class InsightsWidget extends HTMLElement {
                     margin-right: 40px;
                 }
 
-                /* Adjust main content position for topnav */
                 .main-content {
                     margin-left: 0;
                     margin-top: 70px;
+                    height: 100%;
+                    overflow-y: auto;
                 }
 
                 h1 {
