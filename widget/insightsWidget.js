@@ -10,7 +10,7 @@ class InsightsWidget extends HTMLElement {
 
         this.isDevelopment = false;
         this.apiEndpoint = this.isDevelopment 
-            ? "http://127.0.0.1:8000/api/v1/active_insights"
+            ? "http://0.0.0.0:8000"
             : "https://microdelivery-pipeline-lenny.helium.me.sap.corp";
     }
 
@@ -303,31 +303,16 @@ class InsightsWidget extends HTMLElement {
                 
                 .detail-line {
                     margin: 0;
-                    color: #DCE3E9;
+                    color: #A39F9E;
                     font-size: 13px;
                 }
                 
-                .explanation-wrapper {
-                overflow: hidden;
-                transition: max-height 0.4s ease;
-                margin-top: 14px;
+                .combined-content-wrapper {
+                    transition: max-height 0.3s ease;
                 }
 
-                .explanation-content {
-                transition: max-height 0.4s ease;
-                }
-
-                .explanation-content.collapsed {
-                overflow: hidden;
-                }
-
-                .toggle-btn {
-                background: none;
-                border: none;
-                color: #007aff;
-                cursor: pointer;
-                margin-top: 4px;
-                font-size: 14px;
+                .combined-content.collapsed {
+                    overflow: hidden;
                 }
 
                 .toggle-btn {
@@ -493,12 +478,7 @@ class InsightsWidget extends HTMLElement {
     
             tile.innerHTML = `
                 <div class="tile-header">${answer}</div>
-                <div class="tile-panel">
-                    <div class="details-section">
-                        <p style="margin-bottom: 0;"><span style="color: #E38100;">Details:</span></p>
-                        ${key_info.split(';').map(item => `<p class="detail-line">${item.trim()}</p>`).join('')}
-                    </div>
-                </div>
+                <div class="tile-panel"></div>
                 <div class="tile-actions">
                 ${insight.trendURL.includes(".png") ? `
                     <div class="tooltip trend-btn" data-image-url="${insight.trendURL}">
@@ -522,22 +502,50 @@ class InsightsWidget extends HTMLElement {
                 </div>
             `;
     
-            // Add explanation + toggle
-            const explanationWrapper = document.createElement("div");
-            explanationWrapper.className = "explanation-wrapper";
-    
-            const explanationContent = document.createElement("div");
-            explanationContent.className = "explanation-content";
-            explanationContent.innerHTML = explanation;
-    
+            // Combine key_info and explanation into one scrollable block
+            const combinedContentWrapper = document.createElement("div");
+            combinedContentWrapper.className = "combined-content-wrapper";
+
+            const combinedContent = document.createElement("div");
+            combinedContent.className = "combined-content";
+            combinedContent.innerHTML = `
+                <p style="margin-bottom: 0; color: #E38100;"><span>Details:</span></p>
+                ${key_info.split(';').map(item => `<p class="detail-line">${item.trim()}</p>`).join('')}
+                <p style="margin-bottom: 0;"><span>Explanation:</span></p>
+                <div>${explanation}</div>
+            `;
+
             const toggleBtn = document.createElement("button");
             toggleBtn.className = "toggle-btn";
             toggleBtn.textContent = "more...";
             toggleBtn.style.display = "none";
-    
-            explanationWrapper.appendChild(explanationContent);
-            tile.querySelector(".tile-panel").appendChild(explanationWrapper);
+
+            combinedContentWrapper.appendChild(combinedContent);
+            tile.querySelector(".tile-panel").appendChild(combinedContentWrapper);
             tile.querySelector(".tile-panel").appendChild(toggleBtn);
+
+            // Wait for DOM layout to measure and collapse if needed
+            requestAnimationFrame(() => {
+                const tileMinHeight = 300;
+                const tileHeader = tile.querySelector(".tile-header");
+
+                const headerHeight = tileHeader.offsetHeight;
+                const availableHeight = tileMinHeight - headerHeight - 32; // estimate padding
+                const contentHeight = combinedContent.scrollHeight;
+
+                if (contentHeight > availableHeight) {
+                    combinedContent.style.maxHeight = `${availableHeight}px`;
+                    combinedContent.style.overflow = 'hidden';
+                    combinedContent.classList.add("collapsed");
+                    toggleBtn.style.display = "block";
+
+                    toggleBtn.addEventListener("click", () => {
+                        const isCollapsed = combinedContent.classList.toggle("collapsed");
+                        combinedContent.style.maxHeight = isCollapsed ? `${availableHeight}px` : `${contentHeight}px`;
+                        toggleBtn.textContent = isCollapsed ? "more..." : "hide";
+                    });
+                }
+            });
     
             // Wait for DOM layout
             requestAnimationFrame(() => {
