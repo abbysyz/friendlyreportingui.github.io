@@ -297,6 +297,13 @@ class InsightsWidget extends HTMLElement {
                     text-align: left;
                     padding: 4px 0 0;
                 }
+                img.tooltip-image {
+                    transition: opacity 0.2s ease-in-out;
+                    opacity: 0;
+                }
+                img.tooltip-image.visible {
+                    opacity: 1;
+                }
 
             </style>
 
@@ -457,7 +464,6 @@ class InsightsWidget extends HTMLElement {
                 ${insight.trendURL.includes(".png") ? `
                     <div class="tooltip trend-btn" data-image-url="${insight.trendURL}">
                         <img src="${this.baseURL}/icons/trend.svg" class="icon" />
-                        <span class="tooltiptext">View trend</span>
                     </div>` : '<div></div>'}
                     <div style="display: flex; gap: 12px; align-items: center;">
                     <div class="tooltip like-btn" data-insight-task-id="${insight.insight_task_id}" data-feedback="like">
@@ -675,38 +681,40 @@ class InsightsWidget extends HTMLElement {
     }
 
     setupImagePopup() {
-        let popup = this.shadowRoot.querySelector("#imagePopup");
-        if (!popup) {
-            popup = document.createElement("div");
-            popup.id = "imagePopup";
-            popup.style.position = "fixed";
-            popup.style.top = "50%";
-            popup.style.left = "50%";
-            popup.style.transform = "translate(-50%, -50%)";
-            popup.style.background = "#fff";
-            popup.style.boxShadow = "0 4px 10px rgba(0,0,0,0.2)";
-            popup.style.border = "1px solid #ccc";
-            popup.style.borderRadius = "10px";
-            popup.style.zIndex = "9999";
-            popup.style.padding = "16px";
-            popup.style.display = "none";
+        const trendButtons = this.shadowRoot.querySelectorAll(".trend-btn");
     
-            const closeBtn = document.createElement("button");
-            closeBtn.textContent = "Close";
-            closeBtn.style.marginTop = "8px";
-            closeBtn.addEventListener("click", () => {
-                popup.style.display = "none";
+        trendButtons.forEach((btn) => {
+            let previewImg;
+    
+            btn.addEventListener("mouseenter", () => {
+                const imageUrl = btn.getAttribute("data-image-url");
+                if (!imageUrl) return;
+    
+                previewImg = document.createElement("img");
+                previewImg.src = imageUrl;
+                previewImg.style.position = "absolute";
+                previewImg.style.maxWidth = "400px";
+                previewImg.style.border = "1px solid #ccc";
+                previewImg.style.boxShadow = "0px 4px 8px rgba(0, 0, 0, 0.2)";
+                previewImg.style.background = "#fff";
+                previewImg.style.padding = "4px";
+                previewImg.style.borderRadius = "6px";
+                previewImg.style.zIndex = 1000;
+    
+                const rect = btn.getBoundingClientRect();
+                previewImg.style.top = `${rect.bottom + window.scrollY + 10}px`;
+                previewImg.style.left = `${rect.left + window.scrollX}px`;
+    
+                document.body.appendChild(previewImg);
             });
     
-            const img = document.createElement("img");
-            img.style.maxWidth = "600px";
-            img.style.maxHeight = "400px";
-            img.id = "popupImage";
-    
-            popup.appendChild(img);
-            popup.appendChild(closeBtn);
-            this.shadowRoot.appendChild(popup);
-        }
+            btn.addEventListener("mouseleave", () => {
+                if (previewImg && previewImg.parentNode) {
+                    previewImg.parentNode.removeChild(previewImg);
+                }
+            });
+        });
+    }
     
         const trendBtns = this.shadowRoot.querySelectorAll(".trend-btn");
         trendBtns.forEach(btn => {
