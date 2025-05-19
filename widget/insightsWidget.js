@@ -48,7 +48,7 @@ class InsightsWidget extends HTMLElement {
                     text-align: left;
                     position: fixed;
                     top: 0;
-                    left: 180;
+                    left: 180px;
                     z-index: 1000;
                 }
                 nav.topnav {
@@ -89,13 +89,13 @@ class InsightsWidget extends HTMLElement {
                     align-items: center;
                 }
                 #searchInput {
-                    width: 250px;
-                    height: 26px;
-                    border: 2px solid #2F5171;
+                    width: 70%;
+                    height: 24px;
+                    border: 2px solid #4074A2;
                     border-radius: 20px;
                     color: #DCE3E9;
-                    padding: 4px 12px;
-                    background-color: #363640;
+                    margin-left: 15px;
+                    background-color: #294B68;
                     margin-right: 40px;
                 }
 
@@ -144,7 +144,7 @@ class InsightsWidget extends HTMLElement {
                 }
                 .tooltip:hover .tooltiptext {
                     visibility: visible;
-                    opacity: 2;
+                    opacity: 1;
                 }
                 .scrollable-content {
                     max-height: calc(100vh - 80px); /* Adjust this value based on your header/footer height */
@@ -156,15 +156,6 @@ class InsightsWidget extends HTMLElement {
                     max-height: 0;
                     overflow: hidden;
                     transition: max-height 0.2s ease-out;
-                }
-                #searchInput {
-                    width: 70%;
-                    height: 20px;
-                    border: 2px solid #4074A2;
-                    border-radius: 20px;
-                    color: #DCE3E9;
-                    margin-left: 15px;
-                    background-color: #294B68;
                 }
                 .toast {
                     visibility: hidden;
@@ -273,21 +264,17 @@ class InsightsWidget extends HTMLElement {
                     align-items: center;
                     margin-top: 12px;
                 }
-                
                 .detail-line {
                     margin: 0;
                     color: #A39F9E;
                     font-size: 13px;
                 }
-                
                 .combined-content-wrapper {
                     transition: max-height 0.3s ease;
                 }
-
                 .combined-content.collapsed {
                     overflow: hidden;
                 }
-
                 .toggle-btn {
                     background: none;
                     border: none;
@@ -297,13 +284,40 @@ class InsightsWidget extends HTMLElement {
                     text-align: left;
                     padding: 4px 0 0;
                 }
-
-                img.tooltip-image {
-                    transition: opacity 0.2s ease-in-out;
-                    opacity: 0;
+                .image-popup {
+                    position: fixed;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    background: white;
+                    border-radius: 8px;
+                    box-shadow: 0 0 15px rgba(0,0,0,0.3);
+                    z-index: 10000;
+                    max-width: 90vw;
+                    max-height: 90vh;
+                    padding: 10px;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: flex-end;
                 }
-                img.tooltip-image.visible {
-                    opacity: 1;
+                .image-popup img {
+                    max-width: 100%;
+                    max-height: 90vh;
+                    border-radius: 6px;
+                    margin-top: 8px;
+                }
+                .close-btn {
+                    background: transparent;
+                    border: none;
+                    font-size: 24px;
+                    cursor: pointer;
+                    color: #555;
+                    font-weight: bold;
+                    align-self: flex-end;
+                    padding: 0 5px;
+                }
+                .close-btn:hover {
+                    color: #000;
                 }
 
             </style>
@@ -464,6 +478,11 @@ class InsightsWidget extends HTMLElement {
                 <div class="tile-header">${marked.parse(answer)}</div>
                 <div class="tile-panel"></div>
                 <div class="tile-actions">
+
+                <div class="tooltip trend-btn" data-image-url="${this.baseURL}/images/trend.png">
+                        <img src="${this.baseURL}/icons/trend.svg" class="icon" />
+                </div>
+
                 ${insight.trendURL.includes(".png") ? `
                     <div class="tooltip trend-btn" data-image-url="${insight.trendURL}">
                         <img src="${this.baseURL}/icons/trend.svg" class="icon" />
@@ -696,38 +715,61 @@ class InsightsWidget extends HTMLElement {
     }
 
     setupImagePopup() {
+        // Remove any existing popup if present
+        let popup = this.shadowRoot.querySelector(".image-popup");
+        if (popup) {
+            popup.remove();
+        }
+    
         const trendButtons = this.shadowRoot.querySelectorAll(".trend-btn");
     
         trendButtons.forEach((btn) => {
-            let previewImg;
+            btn.addEventListener("click", (e) => {
+                e.stopPropagation(); // prevent event bubbling
     
-            btn.addEventListener("mouseenter", () => {
                 const imageUrl = btn.getAttribute("data-image-url");
                 if (!imageUrl) return;
     
-                previewImg = document.createElement("img");
-                previewImg.src = imageUrl;
-                previewImg.style.position = "absolute";
-                previewImg.style.maxWidth = "400px";
-                previewImg.style.border = "1px solid #ccc";
-                previewImg.style.boxShadow = "0px 4px 8px rgba(0, 0, 0, 0.2)";
-                previewImg.style.background = "#fff";
-                previewImg.style.padding = "4px";
-                previewImg.style.borderRadius = "6px";
-                previewImg.style.zIndex = 1000;
-    
-                const rect = btn.getBoundingClientRect();
-                previewImg.style.top = `${rect.bottom + window.scrollY + 10}px`;
-                previewImg.style.left = `${rect.left + window.scrollX}px`;
-    
-                document.body.appendChild(previewImg);
-            });
-    
-            btn.addEventListener("mouseleave", () => {
-                if (previewImg && previewImg.parentNode) {
-                    previewImg.parentNode.removeChild(previewImg);
+                // Remove existing popup if any before creating a new one
+                const existingPopup = this.shadowRoot.querySelector(".image-popup");
+                if (existingPopup) {
+                    existingPopup.remove();
                 }
+    
+                // Create popup container
+                const popupDiv = document.createElement("div");
+                popupDiv.className = "image-popup";
+    
+                // Create close button
+                const closeBtn = document.createElement("button");
+                closeBtn.className = "close-btn";
+                closeBtn.textContent = "×"; // Unicode multiplication sign looks like close 'x'
+                closeBtn.title = "Close";
+    
+                closeBtn.addEventListener("click", () => {
+                    popupDiv.remove();
+                });
+    
+                // Create image element
+                const img = document.createElement("img");
+                img.src = imageUrl;
+                img.alt = "Trend Image";
+    
+                // Append close button and image to popup
+                popupDiv.appendChild(closeBtn);
+                popupDiv.appendChild(img);
+    
+                // Append popup to shadowRoot
+                this.shadowRoot.appendChild(popupDiv);
             });
+        });
+    
+        // Optional: close popup if clicked outside the image or popup
+        this.shadowRoot.addEventListener("click", (e) => {
+            const popupDiv = this.shadowRoot.querySelector(".image-popup");
+            if (popupDiv && !popupDiv.contains(e.target)) {
+                popupDiv.remove();
+            }
         });
     }
     
