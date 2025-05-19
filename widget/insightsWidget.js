@@ -281,22 +281,11 @@ class InsightsWidget extends HTMLElement {
                 }
                 
                 .combined-content-wrapper {
-                position: relative;
+                    transition: max-height 0.3s ease;
                 }
 
-                .combined-content {
-                display: -webkit-box;
-                -webkit-box-orient: vertical;
-                -webkit-line-clamp: 17;
-                overflow: hidden;
-                transition: all 0.3s ease;
-                }
-
-                .combined-content.expanded {
-                -webkit-line-clamp: unset;
-                display: block;
-                max-height: 300px;
-                overflow-y: auto;
+                .combined-content.collapsed {
+                    overflow: hidden;
                 }
 
                 .toggle-btn {
@@ -444,7 +433,7 @@ class InsightsWidget extends HTMLElement {
         const getFirstTwoWords = (text) => text.split(/\s+/).slice(0, 2).join(" ").toLowerCase();
         const titleFirstTwoWords = getFirstTwoWords(this.pageTitle);
     
-        const filteredInsights = this.insightsData.filter(insight =>
+        const filteredInsights = this.insightsData.filter(insight => 
             insight.status === "completed" &&
             getFirstTwoWords(insight.story_name || '') === titleFirstTwoWords
         );
@@ -464,63 +453,85 @@ class InsightsWidget extends HTMLElement {
     
             const { answer, key_info, explanation } = parsedResult;
             const feedback = this.feedbackCounts[insight.insight_task_id] || { likes: 0, dislikes: 0 };
+            const containsTrend = answer.toLowerCase().includes("trend") || key_info.toLowerCase().includes("trend");
     
             const tile = document.createElement("div");
             tile.className = "tile";
             tile.setAttribute("data-insight-task-id", insight.insight_task_id);
     
             tile.innerHTML = `
+                <div class="tile-header">${answer}</div>
                 <div class="tile-panel"></div>
                 <div class="tile-actions">
-                    ${insight.trendURL.includes(".png") ? `
-                        <div class="tooltip trend-btn" data-image-url="${insight.trendURL}">
-                            <img src="${this.baseURL}/icons/trend.svg" class="icon" />
-                        </div>` : '<div></div>'}
+                ${insight.trendURL.includes(".png") ? `
+                    <div class="tooltip trend-btn" data-image-url="${insight.trendURL}">
+                        <img src="${this.baseURL}/icons/trend.svg" class="icon" />
+                    </div>` : '<div></div>'}
                     <div style="display: flex; gap: 12px; align-items: center;">
-                        <div class="tooltip like-btn" data-insight-task-id="${insight.insight_task_id}" data-feedback="like">
-                            <img src="${this.baseURL}/icons/like_lineal.svg" class="icon">
-                            <span class="tooltiptext">Like</span> <span class="like-count">${feedback.likes}</span>
-                        </div>
-                        <div class="tooltip dislike-btn" data-insight-task-id="${insight.insight_task_id}" data-feedback="dislike">
-                            <img src="${this.baseURL}/icons/dislike_lineal.svg" class="icon">
-                            <span class="tooltiptext">Dislike</span> <span class="dislike-count">${feedback.dislikes}</span>
-                        </div>
-                        <div class="tooltip comment-btn" data-insight-task-id="${insight.insight_task_id}">
-                            <img src="${this.baseURL}/icons/notification.svg" class="icon">
-                            <span class="tooltiptext">Add comments</span>
-                        </div>
+                    <div class="tooltip like-btn" data-insight-task-id="${insight.insight_task_id}" data-feedback="like">
+                        <img src="${this.baseURL}/icons/like_lineal.svg" class="icon">
+                        <span class="tooltiptext">Like</span> <span class="like-count">${feedback.likes}</span>
+                    </div>
+                    <div class="tooltip dislike-btn" data-insight-task-id="${insight.insight_task_id}" data-feedback="dislike">
+                        <img src="${this.baseURL}/icons/dislike_lineal.svg" class="icon">
+                        <span class="tooltiptext">Dislike</span> <span class="dislike-count">${feedback.dislikes}</span>
+                    </div>
+                    <div class="tooltip comment-btn" data-insight-task-id="${insight.insight_task_id}">
+                        <img src="${this.baseURL}/icons/notification.svg" class="icon">
+                        <span class="tooltiptext">Add comments</span>
+                    </div>
                     </div>
                 </div>
             `;
     
+            // Combine key_info and explanation into one block
             const combinedContentWrapper = document.createElement("div");
             combinedContentWrapper.className = "combined-content-wrapper";
-    
+
             const combinedContent = document.createElement("div");
-            combinedContent.className = "combined-content collapsed";
-    
+            combinedContent.className = "combined-content";
             combinedContent.innerHTML = `
-                <p style="margin-bottom: 0; color: #E38100;"><strong>Answer:</strong></p>
-                <p>${answer}</p>
-                <p style="margin-bottom: 0; color: #E38100;"><strong>Details:</strong></p>
+                <p style="margin-bottom: 0; color: #E38100;"><span>Details:</span></p>
                 ${key_info.split(';').map(item => `<p class="detail-line">${item.trim()}</p>`).join('')}
-                <p style="margin-bottom: 0; color: #E38100;"><strong>Explanation:</strong></p>
-                <p>${explanation}</p>
+                <p style="margin-bottom: 0;"><span>Explanation:</span></p>
+                <div>${explanation}</div>
             `;
-    
+
             const toggleBtn = document.createElement("button");
             toggleBtn.className = "toggle-btn";
             toggleBtn.textContent = "more...";
-            toggleBtn.style.display = "block";
-    
-            toggleBtn.addEventListener("click", () => {
-                const isExpanded = combinedContent.classList.toggle("expanded");
-                toggleBtn.textContent = isExpanded ? "hide" : "more...";
-            });
-    
+            toggleBtn.style.display = "none";
+
             combinedContentWrapper.appendChild(combinedContent);
             tile.querySelector(".tile-panel").appendChild(combinedContentWrapper);
             tile.querySelector(".tile-panel").appendChild(toggleBtn);
+
+            // Wait for DOM layout to measure and collapse if needed
+            requestAnimationFrame(() => {
+                const tileMinHeight = 300;
+                const tileHeader = tile.querySelector(".tile-header");
+                const headerHeight = tileHeader?.offsetHeight || 0;
+            
+                const contentHeight = combinedContent.scrollHeight;
+                const availableHeight = tileMinHeight - headerHeight - 32; // Adjust padding estimate
+            
+                if (contentHeight > availableHeight) {
+                    combinedContent.style.maxHeight = `${availableHeight}px`;
+                    combinedContent.style.overflow = 'hidden';
+                    combinedContent.classList.add("collapsed");
+                    toggleBtn.style.display = "block";
+            
+                    toggleBtn.addEventListener("click", () => {
+                        const isCollapsed = combinedContent.classList.toggle("collapsed");
+                        combinedContent.style.maxHeight = isCollapsed ? `${availableHeight}px` : `${contentHeight}px`;
+                        toggleBtn.textContent = isCollapsed ? "more..." : "hide";
+                    });
+                }
+            });
+    
+            tile.querySelector(".tile-header").addEventListener("click", () => {
+                tile.classList.toggle("active");
+            });
     
             tilesContainer.appendChild(tile);
         });
