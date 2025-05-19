@@ -37,7 +37,7 @@ class InsightsWidget extends HTMLElement {
                     display: block;
                     font-family: '72', sans-serif;
                     color: white;
-                    min-height: 100%;
+                    height: 100%;
                     box-sizing: border-box;
                 }
                 header {
@@ -102,9 +102,8 @@ class InsightsWidget extends HTMLElement {
                 .main-content {
                     margin-left: 0;
                     margin-top: 50px;
-                    height: auto;
-                    min-height: 100%;
                     overflow-y: auto;
+                    padding-bottom: 60px;
                 }
 
                 h1 {
@@ -247,7 +246,7 @@ class InsightsWidget extends HTMLElement {
                     color: #DCE3E9;
                     border-radius: 8px;
                     width: 300px;
-                    min-height: 300px;
+                    min-height: 320px;
                     padding: 16px;
                     box-shadow: 0 2px 4px rgba(0,0,0,0.2);
                     display: flex;
@@ -323,7 +322,6 @@ class InsightsWidget extends HTMLElement {
             <div class="main-content active" id="insights">
                 <div id="toast" class="toast">Feedback sent successfully!</div>
                 <div id="insightsTiles" class="tiles-container"></div>
-
                 <div id="commentModal" class="modal" style="flex-direction: column;">
                     <h3>Add Comments</h3>
                     <textarea class="comment-input"></textarea>
