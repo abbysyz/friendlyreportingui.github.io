@@ -17,6 +17,7 @@ class InsightsWidget extends HTMLElement {
         this.captureTitleFromParent();
         this.render();
         this.setupNavigation();
+        this.shadowRoot.querySelector('#searchInput').addEventListener('keyup', () => this.searchFunction());
     }
 
     captureTitleFromParent() {
@@ -349,12 +350,11 @@ class InsightsWidget extends HTMLElement {
             </div>
         `;
 
-        this.setupNavigation();
         this.fetchData();
     }
 
     setupNavigation() {
-        const navItems = this.shadowRoot.querySelectorAll("nav.sidebar div[data-page]");
+        const navItems = this.shadowRoot.querySelectorAll("nav.topnav div[data-page]");
         const pages = this.shadowRoot.querySelectorAll(".main-content");
 
         navItems.forEach((item) => {
@@ -373,7 +373,7 @@ class InsightsWidget extends HTMLElement {
             });
         });
 
-        const defaultPage = this.shadowRoot.querySelector("nav.sidebar div[data-page='insights']");
+        const defaultPage = this.shadowRoot.querySelector("nav.topnav div[data-page='insights']");
         if (defaultPage) {
             defaultPage.classList.add("active");
         }
@@ -415,22 +415,24 @@ class InsightsWidget extends HTMLElement {
                 console.warn("No feedback data found or invalid format.");
                 this.feedbackCounts = {};
                 this.insightsData.forEach((insight) => {
-                    this.feedbackCounts[insight.insight_task_id] = { likes: 0, dislikes: 0 };
+                    this.feedbackCounts[insight.insight_task_id] = { likes: 0, dislikes: 0, comments: 0 };
                 })
                 this.populateTable();
                 return;
             }
 
             this.feedbackCounts = feedbackData.reduce((acc, feedback) => {
-                const { insight_task_id, is_like } = feedback;
-                if (is_like === null || is_like === undefined) return acc;
+                const { insight_task_id, is_like, comment } = feedback;
                 if (!acc[insight_task_id]) {
-                    acc[insight_task_id] = { likes: 0, dislikes: 0 };
+                    acc[insight_task_id] = { likes: 0, dislikes: 0, comments: 0 };
                 }
-                if (is_like) {
+                if (is_like === true) {
                     acc[insight_task_id].likes++;
-                } else {
+                } else if (is_like === false) {
                     acc[insight_task_id].dislikes++;
+                }
+                if (comment && comment.trim() !== "") {
+                    acc[insight_task_id].comments++;
                 }
                 return acc;
             }, {});
@@ -468,8 +470,7 @@ class InsightsWidget extends HTMLElement {
             }
     
             const { answer, key_info, explanation } = parsedResult;
-            const feedback = this.feedbackCounts[insight.insight_task_id] || { likes: 0, dislikes: 0 };
-            const containsTrend = answer.toLowerCase().includes("trend") || key_info.toLowerCase().includes("trend");
+            const feedback = this.feedbackCounts[insight.insight_task_id] || { likes: 0, dislikes: 0, comments: 0 };
     
             const tile = document.createElement("div");
             tile.className = "tile";
@@ -494,7 +495,7 @@ class InsightsWidget extends HTMLElement {
                         </div>
                         <div class="tooltip comment-btn" data-insight-task-id="${insight.insight_task_id}">
                             <img src="${this.baseURL}/icons/notification.svg" class="icon">
-                            <span class="tooltiptext">Add comments</span>
+                            <span class="tooltiptext">Add comments</span> <span class="comment-count" style="color: #A39F9E;">${feedback.comments}</span>
                         </div>
                     </div>
                 </div>
@@ -598,55 +599,64 @@ class InsightsWidget extends HTMLElement {
 
         const sendFeedback = async (insightTaskId, comment, isLike) => {
             const insightRow = this.shadowRoot.querySelector(`.tile[data-insight-task-id='${insightTaskId}']`);
-            // Select the like/dislike button and count elements
-            const iconSelector = isLike ? '.like-btn img' : '.dislike-btn img';
-            const countSelector = isLike ? '.like-count' : '.dislike-count';
-            const oppositeIconSelector = isLike ? '.dislike-btn img' : '.like-btn img';
-
-            const icon = insightRow.querySelector(iconSelector);
-            const countSpan = insightRow.querySelector(countSelector);
-            const oppositeIcon = insightRow.querySelector(oppositeIconSelector);
-
-            // Check if already liked/disliked
-            if (icon.src.includes(`${isLike ? 'like_filled' : 'dislike_filled'}`)) {
-                this.showToast(`You already ${isLike ? 'liked' : 'disliked'}!`, "error");
-                return;
-            }
-
-            // Update UI with filled icons and counts
-            if (icon && countSpan) {
-                icon.src = `${this.baseURL}/icons/${isLike ? 'like_filled' : 'dislike_filled'}.svg`;
-
-                if (oppositeIcon) {
-                    oppositeIcon.src = `${this.baseURL}/icons/${isLike ? 'dislike_lineal' : 'like_lineal'}.svg`;
+        
+            // Only update like/dislike icons and counts if isLike is true or false
+            if (isLike === true || isLike === false) {
+                const iconSelector = isLike ? '.like-btn img' : '.dislike-btn img';
+                const countSelector = isLike ? '.like-count' : '.dislike-count';
+                const oppositeIconSelector = isLike ? '.dislike-btn img' : '.like-btn img';
+        
+                const icon = insightRow.querySelector(iconSelector);
+                const countSpan = insightRow.querySelector(countSelector);
+                const oppositeIcon = insightRow.querySelector(oppositeIconSelector);
+        
+                if (icon.src.includes(`${isLike ? 'like_filled' : 'dislike_filled'}`)) {
+                    this.showToast(`You already ${isLike ? 'liked' : 'disliked'}!`, "error");
+                    return;
                 }
-
-                const currentCount = parseInt(countSpan.textContent, 10) || 0;
-                countSpan.textContent = currentCount + 1;
-            } 
-
+                if (icon && countSpan) {
+                    icon.src = `${this.baseURL}/icons/${isLike ? 'like_filled' : 'dislike_filled'}.svg`;
+        
+                    if (oppositeIcon) {
+                        oppositeIcon.src = `${this.baseURL}/icons/${isLike ? 'dislike_lineal' : 'like_lineal'}.svg`;
+                    }
+                    const currentCount = parseInt(countSpan.textContent, 10) || 0;
+                    countSpan.textContent = currentCount + 1;
+                }
+            }
+        
             try {
+                const payload = {
+                    "insight_task_id": insightTaskId,
+                    "comment": comment,
+                    "is_like": null,
+                    "user_id": ""
+                };
+                // Only include is_like if it's true or false (exclude null)
+                if (isLike === true || isLike === false) {
+                    payload.is_like = isLike;
+                }
                 const response = await fetch(`${this.apiEndpoint}/api/v1/active_insights/feedbacks`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"
                     },
-                    body: JSON.stringify({
-                        "insight_task_id": insightTaskId,
-                        "comment": comment,
-                        "is_like": isLike,
-                        "user_id":""
-                    })
+                    body: JSON.stringify(payload)
                 });
                 if (!response.ok) {
                     throw new Error("Failed to send feedback");
+                }
+                if (isLike === null) {
+                    const commentCountSpan = insightRow.querySelector('.comment-count');
+                    if (commentCountSpan) {
+                        const currentCount = parseInt(commentCountSpan.textContent, 10) || 0;
+                        commentCountSpan.textContent = currentCount + 1;
+                    }
                 }
                 console.log(`Feedback sent successfully:`, insightTaskId, comment, isLike);
                 this.showToast("Thank you for your feedback!", "info");
             } catch (error) {
                 console.error("Error sending feedback:", error);
-                console.log(`Error sent successfully:`, insightTaskId, comment, isLike);
-
             }
         };
 
