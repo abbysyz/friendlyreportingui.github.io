@@ -730,41 +730,35 @@ class InsightsWidget extends HTMLElement {
                 const imageUrl = btn.getAttribute("data-image-url");
                 if (!imageUrl) return;
     
-                // Remove existing popup if any before creating a new one
                 const existingPopup = this.shadowRoot.querySelector(".image-popup");
                 if (existingPopup) {
                     existingPopup.remove();
                 }
     
-                // Create popup container
                 const popupDiv = document.createElement("div");
                 popupDiv.className = "image-popup";
     
-                // Create close button
                 const closeBtn = document.createElement("button");
                 closeBtn.className = "close-btn";
-                closeBtn.textContent = "×"; // Unicode multiplication sign looks like close 'x'
+                closeBtn.textContent = "×";
                 closeBtn.title = "Close";
     
                 closeBtn.addEventListener("click", () => {
                     popupDiv.remove();
                 });
     
-                // Create image element
                 const img = document.createElement("img");
                 img.src = imageUrl;
                 img.alt = "Trend Image";
     
-                // Append close button and image to popup
                 popupDiv.appendChild(closeBtn);
                 popupDiv.appendChild(img);
     
-                // Append popup to shadowRoot
                 this.shadowRoot.appendChild(popupDiv);
             });
         });
     
-        // Optional: close popup if clicked outside the image or popup
+        // Close popup if clicked outside the image or popup
         this.shadowRoot.addEventListener("click", (e) => {
             const popupDiv = this.shadowRoot.querySelector(".image-popup");
             if (popupDiv && !popupDiv.contains(e.target)) {
