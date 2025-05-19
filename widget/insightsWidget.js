@@ -110,9 +110,9 @@ class InsightsWidget extends HTMLElement {
                     color: #E38100
                 }
                 .icon {
-                    width: 20px;
-                    height: 20px;
-                    margin-right: 10px; 
+                    width: 18px;
+                    height: 18px;
+                    margin-right: 3px; 
                     vertical-align: middle;
                 }
                 button {
@@ -246,7 +246,7 @@ class InsightsWidget extends HTMLElement {
                     color: #DCE3E9;
                     border-radius: 8px;
                     width: 300px;
-                    min-height: 305px;
+                    min-height: 310px;
                     padding: 16px;
                     box-shadow: 0 2px 4px rgba(0,0,0,0.2);
                     display: flex;
@@ -426,7 +426,8 @@ class InsightsWidget extends HTMLElement {
         }
     }
 
-    populateTable() {
+    async populateTable() {
+        await this.loadMarkedLibrary();
         const tilesContainer = this.shadowRoot.querySelector("#insightsTiles");
         tilesContainer.innerHTML = "";
     
@@ -460,7 +461,7 @@ class InsightsWidget extends HTMLElement {
             tile.setAttribute("data-insight-task-id", insight.insight_task_id);
     
             tile.innerHTML = `
-                <div class="tile-header">${answer}</div>
+                <div class="tile-header">${marked.parse(answer)}</div>
                 <div class="tile-panel"></div>
                 <div class="tile-actions">
                 ${insight.trendURL.includes(".png") ? `
@@ -470,11 +471,11 @@ class InsightsWidget extends HTMLElement {
                     <div style="display: flex; gap: 12px; align-items: center;">
                     <div class="tooltip like-btn" data-insight-task-id="${insight.insight_task_id}" data-feedback="like">
                         <img src="${this.baseURL}/icons/like_lineal.svg" class="icon">
-                        <span class="tooltiptext">Like</span> <span class="like-count">${feedback.likes}</span>
+                        <span class="tooltiptext">Like</span> <span class="like-count" style="color: #A39F9E;">${feedback.likes}</span>
                     </div>
                     <div class="tooltip dislike-btn" data-insight-task-id="${insight.insight_task_id}" data-feedback="dislike">
                         <img src="${this.baseURL}/icons/dislike_lineal.svg" class="icon">
-                        <span class="tooltiptext">Dislike</span> <span class="dislike-count">${feedback.dislikes}</span>
+                        <span class="tooltiptext">Dislike</span> <span class="dislike-count" style="color: #A39F9E;">${feedback.dislikes}</span>
                     </div>
                     <div class="tooltip comment-btn" data-insight-task-id="${insight.insight_task_id}">
                         <img src="${this.baseURL}/icons/notification.svg" class="icon">
@@ -513,7 +514,7 @@ class InsightsWidget extends HTMLElement {
                 const headerHeight = tileHeader?.offsetHeight || 0;
             
                 const contentHeight = combinedContent.scrollHeight;
-                const availableHeight = tileMinHeight - headerHeight - 32; // Adjust padding estimate
+                const availableHeight = tileMinHeight - headerHeight - 22; // Adjust padding estimate
             
                 if (contentHeight > availableHeight) {
                     combinedContent.style.maxHeight = `${availableHeight}px`;
@@ -538,6 +539,18 @@ class InsightsWidget extends HTMLElement {
     
         this.setupFeedbackButtons();
         this.setupImagePopup();
+    }
+
+    async loadMarkedLibrary() {
+        if (!window.marked) {
+          await new Promise((resolve, reject) => {
+            const script = document.createElement("script");
+            script.src = "https://cdn.jsdelivr.net/npm/marked/marked.min.js";
+            script.onload = resolve;
+            script.onerror = reject;
+            document.head.appendChild(script);
+          });
+        }
     }
 
     toggleFavourite(index, button) {
