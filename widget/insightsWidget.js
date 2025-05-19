@@ -297,6 +297,7 @@ class InsightsWidget extends HTMLElement {
                     text-align: left;
                     padding: 4px 0 0;
                 }
+
                 img.tooltip-image {
                     transition: opacity 0.2s ease-in-out;
                     opacity: 0;
@@ -712,17 +713,6 @@ class InsightsWidget extends HTMLElement {
                 if (previewImg && previewImg.parentNode) {
                     previewImg.parentNode.removeChild(previewImg);
                 }
-            });
-        });
-    }
-    
-        const trendBtns = this.shadowRoot.querySelectorAll(".trend-btn");
-        trendBtns.forEach(btn => {
-            btn.addEventListener("click", () => {
-                const imageUrl = btn.getAttribute("data-image-url");
-                const popupImage = this.shadowRoot.querySelector("#popupImage");
-                popupImage.src = imageUrl;
-                popup.style.display = "block";
             });
         });
     }
