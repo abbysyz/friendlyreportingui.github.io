@@ -8,10 +8,10 @@ class InsightsWidget extends HTMLElement {
         this.pageTitle = '';
         this.baseURL = "https://abbysyz.github.io/friendlyreportingui.github.io/assets";
 
-        this.isDevelopment = false;
+        this.isDevelopment = true;
         this.apiEndpoint = this.isDevelopment 
             ? "http://127.0.0.1:8000/api/v1/active_insights"
-            : "https://microdelivery-pipeline-lenny.helium.me.sap.corp/";
+            : "https://microdelivery-pipeline-lenny.helium.me.sap.corp";
     }
 
     connectedCallback() {
@@ -402,70 +402,8 @@ class InsightsWidget extends HTMLElement {
     async fetchData() {
         try {
             const response = await fetch(`${this.apiEndpoint}/api/v1/active_insights/tasks`);
-            // const data = await response.json();
-            const data = [
-                {
-                  "insight_id": "a454421f-2733-4631-93b1-c3ce7f28b0d5",
-                  "mission_id": "310ad724-b963-46b1-ba2e-d45c9fe6d6f6",
-                  "plugin_version_id": "35c97808-e955-0608-33be-f0683575f1ed",
-                  "status": "completed",
-                  "result": "{\"objective\":\"Find the service with the top highest upwards trend of weekly average pipeline runtime during the last 2 months\",\"answer\":\"The service with the top highest upwards trend of weekly average pipeline runtime during the last 2 months is Tenant Move Operator Service.\",\"key_info\":\"Service Name: Tenant Move Operator Service; Trend Slope: 0.034\",\"explanation\":\"Trend analysis involves assessing the slope of data over time. An upwards trend means there's an increase in the data metric, here the weekly average pipeline runtime, indicating the service's pipeline runtime has been increasing in recent weeks. The slope quantifies the rate of increase.\"}",
-                  "id": "818dda06-fb1a-461d-942d-e024f3ea6e6a",
-                  "story_name": "Pipeline Stability",
-                  "updated_at": "2025-05-14T00:50:54.782737"
-                },{
-                    "insight_id": "1135c6da-23c8-43fe-af4b-f3a6363358f5",
-                    "mission_id": "2989d0b2-0bb2-47b5-add2-6034ab455d32",
-                    "plugin_version_id": "35c97808-e955-0608-33be-f0683575f1ed",
-                    "status": "completed",
-                    "result": "{\"objective\":\"Find the service with the top highest upwards trend of weekly pipeline failures during the last 2 months, then find the most frequent pipeline error and stage error for this service during this time frame.\",\"answer\":\"The service with the highest upwards trend of weekly pipeline failures is Sample Service, with the most frequent pipeline error being 'Bash exited with code '1'' and the most frequent stage error being 'script returned exit code ###'.\",\"key_info\":\"Service Name: Sample Service; Slope: 0.148; Most Frequent Pipeline Error: Bash exited with code '1'; Pipeline Error Count: 13; Most Frequent Stage Error: script returned exit code ###; Stage Error Count: 5\",\"explanation\":\"A service's trend is analyzed by calculating the slope of its pipeline failure ratio over time. A higher slope indicates a steeper increase, representing a more significant upward trend. Pipeline errors are failures that occur during the execution of a pipeline, while stage errors pertain to errors specific to a stage within the pipeline process.A service's trend is analyzed by calculating the slope of its pipeline failure ratio over time. A higher slope indicates a steeper increase, representing a more significant upward trend. Pipeline errors are failures that occur during the execution of a pipeline, while stage errors pertain to errors specific to a stage within the pipeline process.A service's trend is analyzed by calculating the slope of its pipeline failure ratio over time. A higher slope indicates a steeper increase, representing a more significant upward trend. Pipeline errors are failures that occur during the execution of a pipeline, while stage errors pertain to errors specific to a stage within the pipeline process.\"}",
-                    "id": "e135c25f-77bc-4584-98d4-75868727e980",
-                    "story_name": "Pipeline Stability",
-                    "updated_at": "2025-05-14T01:20:21.267000"
-                  },
-                {
-                  "insight_id": "c8c9b04a-e4ed-447b-90d2-85de0e018fae",
-                  "mission_id": "466923a1-6432-472a-b311-64737e78cea0",
-                  "plugin_version_id": "35c97808-e955-0608-33be-f0683575f1ed",
-                  "status": "completed",
-                  "result": "{\"objective\":\"Find the top 1 services with the highest weekly average pipeline runtime and the week when these services' pipelines started during the last 2 months.\",\"answer\":\"The top service with the highest weekly average pipeline runtime is NSE Advisor Service with an average runtime of 164,545,955 milliseconds during week 2025-11.\",\"key_info\":\"Service Name: NSE Advisor Service; Average Runtime: 164,545,955 milliseconds; Week: 2025-11\",\"explanation\":\"Weekly average pipeline runtime refers to the average time taken for a pipeline to execute its processes over a week, measured in milliseconds.\"}",
-                  "id": "fcc31ba3-3563-4dc3-88e6-149827cab210",
-                  "story_name": "Pipeline Stability",
-                  "updated_at": "2025-05-14T00:58:01.275730"
-                },
-                {
-                  "insight_id": "40ed7a6a-4de4-42e5-abd4-4097346a69b7",
-                  "mission_id": "5e7e073d-0ebe-4c05-b005-72d66c7bb2d2",
-                  "plugin_version_id": "35c97808-e955-0608-33be-f0683575f1ed",
-                  "status": "completed",
-                  "result": "{\"objective\":\"Find the top 1 services with the highest weekly average pipeline failure ratio and the week when these services' pipelines started during the last 2 months\",\"answer\":\"The top service with the highest weekly average pipeline failure ratio is 'backup-deprovision-job', with a failure ratio of 1.0 during week 202517.\",\"key_info\":\"Top Service: backup-deprovision-job; Highest Failure Ratio: 1.0; Week of Highest Ratio: 202517\",\"explanation\":\"The pipeline failure ratio is calculated as the number of failed runs divided by the total runs. A weekly average pipeline failure ratio of 1.0 indicates that all pipeline runs in a particular week failed.\"}",
-                  "id": "a223bb5f-3bb4-4ea3-b7c0-d9b091b90f7a",
-                  "story_name": "Pipeline Stability",
-                  "updated_at": "2025-05-14T01:11:12.704310"
-                },
-                {
-                  "insight_id": "1135c6da-23c8-43fe-af4b-f3a6363358f5",
-                  "mission_id": "2989d0b2-0bb2-47b5-add2-6034ab455d32",
-                  "plugin_version_id": "35c97808-e955-0608-33be-f0683575f1ed",
-                  "status": "completed",
-                  "result": "{\"objective\":\"Find the service with the top highest upwards trend of weekly pipeline failures during the last 2 months, then find the most frequent pipeline error and stage error for this service during this time frame.\",\"answer\":\"The service with the highest upwards trend of weekly pipeline failures is Sample Service, with the most frequent pipeline error being 'Bash exited with code '1'' and the most frequent stage error being 'script returned exit code ###'.\",\"key_info\":\"Service Name: Sample Service; Slope: 0.148; Most Frequent Pipeline Error: Bash exited with code '1'; Pipeline Error Count: 13; Most Frequent Stage Error: script returned exit code ###; Stage Error Count: 5\",\"explanation\":\"A service's trend is analyzed by calculating the slope of its pipeline failure ratio over time. A higher slope indicates a steeper increase, representing a more significant upward trend. Pipeline errors are failures that occur during the execution of a pipeline, while stage errors pertain to errors specific to a stage within the pipeline process.A service's trend is analyzed by calculating the slope of its pipeline failure ratio over time. A higher slope indicates a steeper increase, representing a more significant upward trend. Pipeline errors are failures that occur during the execution of a pipeline, while stage errors pertain to errors specific to a stage within the pipeline process.A service's trend is analyzed by calculating the slope of its pipeline failure ratio over time. A higher slope indicates a steeper increase, representing a more significant upward trend. Pipeline errors are failures that occur during the execution of a pipeline, while stage errors pertain to errors specific to a stage within the pipeline process.\"}",
-                  "id": "e135c25f-77bc-4584-98d4-75868727e980",
-                  "story_name": "Pipeline Stability",
-                  "updated_at": "2025-05-14T01:20:21.267000"
-                },
-                {
-                  "insight_id": "1135c6da-23c8-43fe-af4b-f3a6363358f5",
-                  "mission_id": "2989d0b2-0bb2-47b5-add2-6034ab455d32",
-                  "plugin_version_id": "35c97808-e955-0608-33be-f0683575f1ed",
-                  "status": "completed",
-                  "result": "{\"objective\":\"Find the service with the top highest upwards trend of weekly pipeline failures during the last 2 months, then find the most frequent pipeline error and stage error for this service during this time frame.\",\"answer\":\"The service with the highest upwards trend of weekly pipeline failures is Sample Service, with the most frequent pipeline error being 'Bash exited with code '1'' and the most frequent stage error being 'script returned exit code ###'.\",\"key_info\":\"Service Name: Sample Service; Slope: 0.148; Most Frequent Pipeline Error: Bash exited with code '1'; Pipeline Error Count: 13; Most Frequent Stage Error: script returned exit code ###; Stage Error Count: 5\",\"explanation\":\"A service's trend is analyzed by calculating the slope of its pipeline failure ratio over time. A higher slope indicates a steeper increase, representing a more significant upward trend. Pipeline errors are failures that occur during the execution of a pipeline, while stage errors pertain to errors specific to a stage within the pipeline process.A service's trend is analyzed by calculating the slope of its pipeline failure ratio over time. A higher slope indicates a steeper increase, representing a more significant upward trend. Pipeline errors are failures that occur during the execution of a pipeline, while stage errors pertain to errors specific to a stage within the pipeline process.A service's trend is analyzed by calculating the slope of its pipeline failure ratio over time. A higher slope indicates a steeper increase, representing a more significant upward trend. Pipeline errors are failures that occur during the execution of a pipeline, while stage errors pertain to errors specific to a stage within the pipeline process.\"}",
-                  "id": "e135c25f-77bc-4584-98d4-75868727e980",
-                  "story_name": "Pipeline Stability",
-                  "updated_at": "2025-05-14T01:20:21.267000"
-                }
-              ]
-
-              const trendData = await Promise.all(data.map(async task => {
+            const data = await response.json();
+            const trendData = await Promise.all(data.map(async task => {
                 const insightTaskId = task.id;
                 try {
                     const trendRes = await fetch(`${this.apiEndpoint}/api/v1/active_insights/file?insight_task_id=${insightTaskId}`);
