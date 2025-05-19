@@ -37,7 +37,7 @@ class InsightsWidget extends HTMLElement {
                     display: block;
                     font-family: '72', sans-serif;
                     color: white;
-                    height: 100%;
+                    min-height: 100%;
                     box-sizing: border-box;
                 }
                 header {
@@ -101,8 +101,9 @@ class InsightsWidget extends HTMLElement {
 
                 .main-content {
                     margin-left: 0;
-                    margin-top: 70px;
-                    height: 100%;
+                    margin-top: 50px;
+                    height: auto;
+                    min-height: 100%;
                     overflow-y: auto;
                 }
 
@@ -147,8 +148,8 @@ class InsightsWidget extends HTMLElement {
                     opacity: 2;
                 }
                 .scrollable-content {
-                    max-height: calc(100vh - 80px); /* Adjust this value based on your header/footer height */
                     overflow-y: auto;
+                    padding-bottom: 60px;
                 }
                 .panel {
                     padding: 0 18px;
