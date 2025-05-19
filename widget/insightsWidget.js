@@ -423,6 +423,7 @@ class InsightsWidget extends HTMLElement {
 
             this.feedbackCounts = feedbackData.reduce((acc, feedback) => {
                 const { insight_task_id, is_like } = feedback;
+                if (is_like === null || is_like === undefined) return acc;
                 if (!acc[insight_task_id]) {
                     acc[insight_task_id] = { likes: 0, dislikes: 0 };
                 }
@@ -478,28 +479,23 @@ class InsightsWidget extends HTMLElement {
                 <div class="tile-header">${marked.parse(answer)}</div>
                 <div class="tile-panel"></div>
                 <div class="tile-actions">
-
-                <div class="tooltip trend-btn" data-image-url="${this.baseURL}/images/trend.png">
-                        <img src="${this.baseURL}/icons/trend.svg" class="icon" />
-                </div>
-
-                ${insight.trendURL.includes(".png") ? `
-                    <div class="tooltip trend-btn" data-image-url="${insight.trendURL}">
-                        <img src="${this.baseURL}/icons/trend.svg" class="icon" />
-                    </div>` : '<div></div>'}
+                    ${insight.trendURL.includes(".png") ? `
+                        <div class="tooltip trend-btn" data-image-url="${insight.trendURL}">
+                            <img src="${this.baseURL}/icons/trend.svg" class="icon" />
+                        </div>` : '<div></div>'}
                     <div style="display: flex; gap: 12px; align-items: center;">
-                    <div class="tooltip like-btn" data-insight-task-id="${insight.insight_task_id}" data-feedback="like">
-                        <img src="${this.baseURL}/icons/like_lineal.svg" class="icon">
-                        <span class="tooltiptext">Like</span> <span class="like-count" style="color: #A39F9E;">${feedback.likes}</span>
-                    </div>
-                    <div class="tooltip dislike-btn" data-insight-task-id="${insight.insight_task_id}" data-feedback="dislike">
-                        <img src="${this.baseURL}/icons/dislike_lineal.svg" class="icon">
-                        <span class="tooltiptext">Dislike</span> <span class="dislike-count" style="color: #A39F9E;">${feedback.dislikes}</span>
-                    </div>
-                    <div class="tooltip comment-btn" data-insight-task-id="${insight.insight_task_id}">
-                        <img src="${this.baseURL}/icons/notification.svg" class="icon">
-                        <span class="tooltiptext">Add comments</span>
-                    </div>
+                        <div class="tooltip like-btn" data-insight-task-id="${insight.insight_task_id}" data-feedback="like">
+                            <img src="${this.baseURL}/icons/like_lineal.svg" class="icon">
+                            <span class="tooltiptext">Like</span> <span class="like-count" style="color: #A39F9E;">${feedback.likes}</span>
+                        </div>
+                        <div class="tooltip dislike-btn" data-insight-task-id="${insight.insight_task_id}" data-feedback="dislike">
+                            <img src="${this.baseURL}/icons/dislike_lineal.svg" class="icon">
+                            <span class="tooltiptext">Dislike</span> <span class="dislike-count" style="color: #A39F9E;">${feedback.dislikes}</span>
+                        </div>
+                        <div class="tooltip comment-btn" data-insight-task-id="${insight.insight_task_id}">
+                            <img src="${this.baseURL}/icons/notification.svg" class="icon">
+                            <span class="tooltiptext">Add comments</span>
+                        </div>
                     </div>
                 </div>
             `;
