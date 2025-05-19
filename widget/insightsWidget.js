@@ -102,8 +102,8 @@ class InsightsWidget extends HTMLElement {
                 .main-content {
                     margin-left: 0;
                     margin-top: 50px;
+                    height: 100%;
                     overflow-y: auto;
-                    padding-bottom: 60px;
                 }
 
                 h1 {
@@ -147,8 +147,8 @@ class InsightsWidget extends HTMLElement {
                     opacity: 2;
                 }
                 .scrollable-content {
+                    max-height: calc(100vh - 80px); /* Adjust this value based on your header/footer height */
                     overflow-y: auto;
-                    padding-bottom: 60px;
                 }
                 .panel {
                     padding: 0 18px;
@@ -322,6 +322,7 @@ class InsightsWidget extends HTMLElement {
             <div class="main-content active" id="insights">
                 <div id="toast" class="toast">Feedback sent successfully!</div>
                 <div id="insightsTiles" class="tiles-container"></div>
+
                 <div id="commentModal" class="modal" style="flex-direction: column;">
                     <h3>Add Comments</h3>
                     <textarea class="comment-input"></textarea>
