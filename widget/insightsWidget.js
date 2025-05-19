@@ -246,7 +246,7 @@ class InsightsWidget extends HTMLElement {
                     color: #DCE3E9;
                     border-radius: 8px;
                     width: 300px;
-                    min-height: 320px;
+                    min-height: 305px;
                     padding: 16px;
                     box-shadow: 0 2px 4px rgba(0,0,0,0.2);
                     display: flex;
@@ -331,6 +331,7 @@ class InsightsWidget extends HTMLElement {
                         <button class="send-btn" style="height: 30px; width: 100px; border-radius: 5px;">Send</button>
                     </div>
                 </div>
+                <div style="height: 40px;"></div>
             </div>
         `;
 
