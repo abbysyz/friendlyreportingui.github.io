@@ -237,14 +237,16 @@ class InsightsWidget extends HTMLElement {
                     background-color: #1D2225;
                     color: #DCE3E9;
                     border-radius: 8px;
-                    width: 300px;
-                    min-height: 310px;
                     padding: 16px;
                     box-shadow: 0 2px 4px rgba(0,0,0,0.2);
                     display: flex;
+                    min-height: 320px;
                     flex-direction: column;
                     justify-content: space-between;
-                }
+
+                    flex: 0 1 clamp(300px, 20vw, 500px);
+                    height: clamp(240px, 22vw, 400px); /* Reduced min and max height */
+}
 
                 .tile-header {
                     font-size: 14px;
