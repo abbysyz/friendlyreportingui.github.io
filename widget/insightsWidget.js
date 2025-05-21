@@ -233,7 +233,7 @@ class InsightsWidget extends HTMLElement {
                     justify-content: flex-start;
                 }
                 .tile {
-                    width: clamp(300px, 25vw, 500px);
+                    width: clamp(300px, 20vw, 500px);
                     aspect-ratio: 1 / 1;
                     display: flex;
                     flex-direction: column;
@@ -242,7 +242,6 @@ class InsightsWidget extends HTMLElement {
                     color: #DCE3E9;
                     border-radius: 10px;
                     padding: 16px;
-                    overflow: hidden;
                 }
                 .tile.expanded {
                     aspect-ratio: auto; /* Allow full height content */
@@ -524,14 +523,15 @@ class InsightsWidget extends HTMLElement {
     
             const adjustVisibility = () => {
                 if (tile.classList.contains("expanded")) return;
-    
-                const tileHeight = tile.clientHeight;
+            
+                // Let the tile grow vertically *if* content + actions won't fit in a square
+                const tileMinHeight = tile.offsetWidth;
                 const headerHeight = tile.querySelector(".tile-header")?.offsetHeight || 0;
                 const actionsHeight = tile.querySelector(".tile-actions")?.offsetHeight || 0;
                 const paddingAllowance = 32;
-    
-                const availableHeight = tileHeight - headerHeight - actionsHeight - paddingAllowance;
-    
+            
+                const availableHeight = tileMinHeight - headerHeight - actionsHeight - paddingAllowance;
+            
                 if (combinedContent.scrollHeight > availableHeight) {
                     combinedContent.classList.add("collapsed");
                     combinedContent.style.maxHeight = `${availableHeight}px`;
@@ -544,6 +544,9 @@ class InsightsWidget extends HTMLElement {
                     combinedContent.style.overflow = "visible";
                     toggleBtn.style.display = "none";
                 }
+            
+                // Ensure full tile height fits content + actions
+                tile.style.height = 'auto';
             };
     
             toggleBtn.addEventListener("click", () => {
