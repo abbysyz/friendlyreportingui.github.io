@@ -232,27 +232,25 @@ class InsightsWidget extends HTMLElement {
                     padding: 20px;
                     justify-content: flex-start;
                 }
-
                 .tile {
-                    background-color: #1D2225;
-                    color: #DCE3E9;
-                    border-radius: 8px;
-                    padding: 16px;
-                    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+                    width: clamp(300px, 25vw, 500px);
+                    aspect-ratio: 1 / 1;
                     display: flex;
-                    min-height: 320px;
                     flex-direction: column;
                     justify-content: space-between;
-
-                    flex: 0 1 clamp(300px, 20vw, 500px);
-                    height: clamp(240px, 22vw, 400px); /* Reduced min and max height */
-}
-
+                    background: #1D2225;
+                    color: #DCE3E9;
+                    border-radius: 10px;
+                    padding: 16px;
+                    overflow: hidden;
+                }
+                .tile.expanded {
+                    aspect-ratio: auto; /* Allow full height content */
+                }
                 .tile-header {
                     font-size: 14px;
                     cursor: pointer;
                 }
-
                 .tile-panel {
                     display: block;
                     font-size: 14px;
@@ -260,7 +258,6 @@ class InsightsWidget extends HTMLElement {
                     color: #A39F9E;
                     
                 }
-
                 .tile-actions {
                     display: flex;
                     justify-content: space-between;
@@ -273,6 +270,7 @@ class InsightsWidget extends HTMLElement {
                     font-size: 13px;
                 }
                 .combined-content-wrapper {
+                    overflow: hidden;
                     transition: max-height 0.3s ease;
                 }
                 .combined-content.collapsed {
@@ -453,7 +451,7 @@ class InsightsWidget extends HTMLElement {
         const getFirstTwoWords = (text) => text.split(/\s+/).slice(0, 2).join(" ").toLowerCase();
         const titleFirstTwoWords = getFirstTwoWords(this.pageTitle);
     
-        const filteredInsights = this.insightsData.filter(insight => 
+        const filteredInsights = this.insightsData.filter(insight =>
             insight.status === "completed" &&
             getFirstTwoWords(insight.story_name || '') === titleFirstTwoWords
         );
@@ -503,10 +501,9 @@ class InsightsWidget extends HTMLElement {
                 </div>
             `;
     
-            // Combine key_info and explanation into one block
             const combinedContentWrapper = document.createElement("div");
             combinedContentWrapper.className = "combined-content-wrapper";
-
+    
             const combinedContent = document.createElement("div");
             combinedContent.className = "combined-content";
             combinedContent.innerHTML = `
@@ -515,37 +512,59 @@ class InsightsWidget extends HTMLElement {
                 <p style="margin-bottom: 0;"><span>Explanation:</span></p>
                 <div>${explanation}</div>
             `;
-
+    
             const toggleBtn = document.createElement("button");
             toggleBtn.className = "toggle-btn";
             toggleBtn.textContent = "more...";
             toggleBtn.style.display = "none";
-
+    
             combinedContentWrapper.appendChild(combinedContent);
             tile.querySelector(".tile-panel").appendChild(combinedContentWrapper);
             tile.querySelector(".tile-panel").appendChild(toggleBtn);
-
-            // Wait for DOM layout to measure and collapse if needed
-            requestAnimationFrame(() => {
-                const tileMinHeight = 300;
-                const tileHeader = tile.querySelector(".tile-header");
-                const headerHeight = tileHeader?.offsetHeight || 0;
-            
-                const contentHeight = combinedContent.scrollHeight;
-                const availableHeight = tileMinHeight - headerHeight - 22; // Adjust padding estimate
-            
-                if (contentHeight > availableHeight) {
-                    combinedContent.style.maxHeight = `${availableHeight}px`;
-                    combinedContent.style.overflow = 'hidden';
+    
+            const adjustVisibility = () => {
+                if (tile.classList.contains("expanded")) return;
+    
+                const tileHeight = tile.clientHeight;
+                const headerHeight = tile.querySelector(".tile-header")?.offsetHeight || 0;
+                const actionsHeight = tile.querySelector(".tile-actions")?.offsetHeight || 0;
+                const paddingAllowance = 32;
+    
+                const availableHeight = tileHeight - headerHeight - actionsHeight - paddingAllowance;
+    
+                if (combinedContent.scrollHeight > availableHeight) {
                     combinedContent.classList.add("collapsed");
+                    combinedContent.style.maxHeight = `${availableHeight}px`;
+                    combinedContent.style.overflow = "hidden";
                     toggleBtn.style.display = "block";
-            
-                    toggleBtn.addEventListener("click", () => {
-                        const isCollapsed = combinedContent.classList.toggle("collapsed");
-                        combinedContent.style.maxHeight = isCollapsed ? `${availableHeight}px` : `${contentHeight}px`;
-                        toggleBtn.textContent = isCollapsed ? "more..." : "hide";
-                    });
+                    toggleBtn.textContent = "more...";
+                } else {
+                    combinedContent.classList.remove("collapsed");
+                    combinedContent.style.maxHeight = "none";
+                    combinedContent.style.overflow = "visible";
+                    toggleBtn.style.display = "none";
                 }
+            };
+    
+            toggleBtn.addEventListener("click", () => {
+                const expanded = tile.classList.toggle("expanded");
+                if (expanded) {
+                    combinedContent.classList.remove("collapsed");
+                    combinedContent.style.maxHeight = "none";
+                    combinedContent.style.overflow = "visible";
+                    toggleBtn.textContent = "hide";
+                } else {
+                    tile.classList.remove("expanded");
+                    adjustVisibility();
+                }
+            });
+    
+            window.addEventListener("resize", () => {
+                if (!tile.classList.contains("expanded")) adjustVisibility();
+            });
+    
+            requestAnimationFrame(() => {
+                adjustVisibility();
             });
     
             tile.querySelector(".tile-header").addEventListener("click", () => {
