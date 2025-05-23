@@ -486,15 +486,15 @@ class InsightsWidget extends HTMLElement {
                     <div style="display: flex; gap: 12px; align-items: center;">
                         <div class="tooltip like-btn" data-insight-task-id="${insight.insight_task_id}" data-feedback="like">
                             <img src="${this.baseURL}/icons/like_lineal.svg" class="icon">
-                            <span class="tooltiptext">Like</span> <span class="like-count" style="color: #A39F9E;">${feedback.likes}</span>
+                            <span class="tooltiptext">Like</span> <span class="like-count" style="color: #A39F9E; font-size: 12px;">${feedback.likes}</span>
                         </div>
                         <div class="tooltip dislike-btn" data-insight-task-id="${insight.insight_task_id}" data-feedback="dislike">
                             <img src="${this.baseURL}/icons/dislike_lineal.svg" class="icon">
-                            <span class="tooltiptext">Dislike</span> <span class="dislike-count" style="color: #A39F9E;">${feedback.dislikes}</span>
+                            <span class="tooltiptext">Dislike</span> <span class="dislike-count" style="color: #A39F9E; font-size: 12px;">${feedback.dislikes}</span>
                         </div>
                         <div class="tooltip comment-btn" data-insight-task-id="${insight.insight_task_id}">
                             <img src="${this.baseURL}/icons/notification.svg" class="icon">
-                            <span class="tooltiptext">Add comments</span> <span class="comment-count" style="color: #A39F9E;">${feedback.comments}</span>
+                            <span class="tooltiptext">Add comments</span> <span class="comment-count" style="color: #A39F9E; font-size: 12px;">${feedback.comments}</span>
                         </div>
                     </div>
                 </div>
