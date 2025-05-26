@@ -508,7 +508,7 @@ class InsightsWidget extends HTMLElement {
             combinedContent.innerHTML = `
                 <p style="margin-bottom: 0; color: #E38100;"><span>Details:</span></p>
                 ${key_info.split(';').map(item => `<p class="detail-line">${item.trim()}</p>`).join('')}
-                <p style="margin-bottom: 0;"><span>Explanation:</span></p>
+                <p style="margin-bottom: 0;"></p>
                 <div>${explanation}</div>
             `;
     
